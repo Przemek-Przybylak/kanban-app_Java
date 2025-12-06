@@ -1,18 +1,21 @@
 package com.example.kanban.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
+@Setter
+
 @Entity
 @Table(name = "tasks")
 public class Task {
     @Id
-    @GeneratedValue
-    @Column(name = "task_id", columnDefinition = "BINARY(16)")
-    private UUID taskId;
+    private String taskId;
 
     private String title;
 

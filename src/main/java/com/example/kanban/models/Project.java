@@ -15,9 +15,7 @@ import java.util.UUID;
 @Table(name = "projects")
 public class Project {
     @Id
-    @GeneratedValue
-    @Column(name = "project_id", columnDefinition = "BINARY(16)")
-    private UUID projectId;
+    private String projectId;
 
     @Column(length = 1000)
     private String description;
