@@ -10,4 +10,7 @@ public interface TaskServiceInterface {
 
     @Transactional(readOnly = true)
     Task getTask(String id);
+
+    @Transactional
+    Task addTask(String projectId, Task task);
 }
