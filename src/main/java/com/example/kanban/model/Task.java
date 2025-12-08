@@ -1,7 +1,10 @@
 package com.example.kanban.model;
 
+import com.example.kanban.util.HasId;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,12 +12,15 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class Task implements HasId {
     @Id
-    private String taskId;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(length = 36, name = "task_id")
+    private String id;
 
     private String title;
 
@@ -35,4 +41,8 @@ public class Task {
 
     private String approvedBy;
 
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    @JsonIgnoreProperties("tasks")
+    private Project project;
 }
