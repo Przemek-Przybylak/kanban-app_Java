@@ -42,4 +42,26 @@ public class TaskController {
 
         return ResponseEntity.created(location).body(savedTask);
     }
+
+    @PutMapping("tasks/{projectId}")
+    public ResponseEntity<Task> editTask(@PathVariable String projectId, @RequestBody Task task) {
+        Task savedTask = taskService.editTask(projectId, task);
+
+        return ResponseEntity.ok(savedTask);
+    }
+
+    @PatchMapping("tasks/{taskId}")
+    public ResponseEntity<Task> editPartialTask(@PathVariable String id, @RequestBody Task task) {
+        Task savedTask = taskService.editPartialTask(id, task);
+
+        return ResponseEntity.ok(savedTask);
+    }
+
+    @DeleteMapping("tasks/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
+        taskService.deleteTask(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
+
