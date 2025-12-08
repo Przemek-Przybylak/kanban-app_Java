@@ -29,7 +29,7 @@ public class Project implements HasId {
 
     @ElementCollection
     @CollectionTable(
-            name = "members",
+            name = "project_members",
             joinColumns = @JoinColumn(name = "project_id")
     )
     @Column(name = "member")
