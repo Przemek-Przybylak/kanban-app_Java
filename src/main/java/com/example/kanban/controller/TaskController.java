@@ -3,10 +3,11 @@ package com.example.kanban.controller;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.service.TaskService;
+import com.example.kanban.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,5 +32,14 @@ public class TaskController {
         Task task = taskService.getTask(id);
 
         return ResponseEntity.ok(task);
+    }
+
+    @PostMapping("tasks/{projectId}")
+    public ResponseEntity<Task> addTask(@PathVariable String projectId, @RequestBody Task task) {
+        Task savedTask = taskService.addTask(projectId, task);
+
+        URI location = LocationUtil.buildLocation(savedTask);
+
+        return ResponseEntity.created(location).body(savedTask);
     }
 }
