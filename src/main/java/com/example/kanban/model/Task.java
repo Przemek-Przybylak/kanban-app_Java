@@ -33,10 +33,10 @@ public class Task implements HasId {
 
     @ElementCollection
     @CollectionTable(
-            name = "members",
+            name = "task_members",
             joinColumns = @JoinColumn(name = "task_id")
     )
-    @Column(name = "members")
+    @Column(name = "member")
     private List<String> members;
 
     private String approvedBy;
