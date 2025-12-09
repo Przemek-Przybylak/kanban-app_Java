@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 public class TaskService implements TaskServiceInterface {
@@ -59,35 +60,25 @@ public class TaskService implements TaskServiceInterface {
     @Override
     public Task editPartialTask(String taskId, Task task) {
         Task existingTask = checkTaskExisting(taskId);
-
-        String projectId = existingTask.getProject().getId();
-        System.out.println("Project id to: " + projectId);
-        Project project = checkProjectExist(projectId);
-        System.out.println("Projekt to: " + project);
+        Project project = checkProjectExist(existingTask.getProject().getId());
         existingTask.setProject(project);
 
-        if (task.getMembers() != null) {
+        updateIfNotNull(task.getMembers(), newMembers -> {
             existingTask.getMembers().clear();
-            existingTask.getMembers().addAll(task.getMembers());
-        }
-        if (task.getDescription() != null) {
-            existingTask.setDescription(task.getDescription());
-        }
-        if (task.getStatus() != null) {
-            existingTask.setStatus(task.getStatus());
-        }
-        if (task.getApprovedBy() != null) {
-            existingTask.setApprovedBy(task.getApprovedBy());
-        }
-        if (task.getDueDate() != null) {
-            existingTask.setDueDate(task.getDueDate());
-        }
-        if (task.getTitle() != null) {
-            existingTask.setTitle(task.getTitle());
-        }
-        if (task.getCreatedAt() != null) {
-            existingTask.setCreatedAt(task.getCreatedAt());
-        }
+            existingTask.getMembers().addAll(newMembers);
+        });
+
+        updateIfNotNull(task.getDescription(), existingTask::setDescription);
+
+        updateIfNotNull(task.getStatus(), existingTask::setStatus);
+
+        updateIfNotNull(task.getApprovedBy(), existingTask::setApprovedBy);
+
+        updateIfNotNull(task.getDueDate(), existingTask::setDueDate);
+
+        updateIfNotNull(task.getTitle(), existingTask::setTitle);
+
+        updateIfNotNull(task.getCreatedAt(), existingTask::setCreatedAt);
 
         return taskRepository.save(existingTask);
     }
@@ -111,5 +102,11 @@ public class TaskService implements TaskServiceInterface {
     private Task checkTaskExisting(String id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+    }
+
+    public static <T> void updateIfNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 }
