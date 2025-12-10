@@ -11,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.function.Consumer;
+
+import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 
 @Service
 public class TaskService implements TaskServiceInterface {
@@ -26,12 +27,14 @@ public class TaskService implements TaskServiceInterface {
     @Transactional(readOnly = true)
     @Override
     public List<Task> getAllTasks() {
+
         return taskRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Task getTask(String id) {
+
         return checkTaskExisting(id);
     }
 
@@ -41,6 +44,7 @@ public class TaskService implements TaskServiceInterface {
         Project project = checkProjectExist(projectId);
 
         task.setProject(project);
+
         return taskRepository.save(task);
     }
 
@@ -50,7 +54,7 @@ public class TaskService implements TaskServiceInterface {
     public Task editTask(String projectId, Task task) {
         checkTaskExisting(task.getId());
 
-        Project project = checkProjectExist(projectId);
+        checkProjectExist(projectId);
 
         return taskRepository.save(task);
 
@@ -69,15 +73,10 @@ public class TaskService implements TaskServiceInterface {
         });
 
         updateIfNotNull(task.getDescription(), existingTask::setDescription);
-
         updateIfNotNull(task.getStatus(), existingTask::setStatus);
-
         updateIfNotNull(task.getApprovedBy(), existingTask::setApprovedBy);
-
         updateIfNotNull(task.getDueDate(), existingTask::setDueDate);
-
         updateIfNotNull(task.getTitle(), existingTask::setTitle);
-
         updateIfNotNull(task.getCreatedAt(), existingTask::setCreatedAt);
 
         return taskRepository.save(existingTask);
@@ -102,11 +101,5 @@ public class TaskService implements TaskServiceInterface {
     private Task checkTaskExisting(String id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-    }
-
-    public static <T> void updateIfNotNull(T value, Consumer<T> setter) {
-        if (value != null) {
-            setter.accept(value);
-        }
     }
 }
