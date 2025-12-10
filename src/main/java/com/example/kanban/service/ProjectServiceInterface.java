@@ -12,4 +12,7 @@ public interface ProjectServiceInterface {
 
     @Transactional(readOnly = true)
     Project getProject(String id);
+
+    @Transactional
+    Project addProject(Project project);
 }
