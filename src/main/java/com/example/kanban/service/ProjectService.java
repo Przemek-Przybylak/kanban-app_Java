@@ -26,8 +26,18 @@ public class ProjectService implements ProjectServiceInterface{
     @Transactional(readOnly = true)
     @Override
     public Project getProject(String id) {
+        return checkProjectExist(id);
+    }
+
+    @Transactional
+    @Override
+    public Project addProject(Project project) {
+        return projectRepository.save(project);
+    }
+
+    private Project checkProjectExist(String id) {
         return projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
     }
 }
 
