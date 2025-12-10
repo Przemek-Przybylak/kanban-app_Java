@@ -3,11 +3,11 @@ package com.example.kanban.controller;
 import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.service.ProjectService;
+import com.example.kanban.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,7 +22,7 @@ public class ProjectController {
 
     @GetMapping("projects")
     public ResponseEntity<List<Project>> getProjects() {
-        List<Project> projects =  projectService.getAllProjects();
+        List<Project> projects = projectService.getAllProjects();
 
         return ResponseEntity.ok(projects);
     }
@@ -32,5 +32,14 @@ public class ProjectController {
         Project project = projectService.getProject(id);
 
         return ResponseEntity.ok(project);
+    }
+
+    @PostMapping("projects")
+    public ResponseEntity<Project> addProect(@RequestBody Project project) {
+        Project savedProject = projectService.addProject(project);
+
+        URI location = LocationUtil.buildLocation(savedProject);
+
+        return ResponseEntity.created(location).body(savedProject);
     }
 }
