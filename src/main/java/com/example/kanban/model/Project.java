@@ -19,6 +19,7 @@ import java.util.List;
 public class Project implements HasId {
     @Id
     @Column(length = 36, name = "project_id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(length = 1000)
