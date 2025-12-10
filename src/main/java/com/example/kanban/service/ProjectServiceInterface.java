@@ -15,4 +15,10 @@ public interface ProjectServiceInterface {
 
     @Transactional
     Project addProject(Project project);
+
+    @Transactional
+    Project editProject(String id, Project project);
+
+    @Transactional
+    Project editPartialProject(String id, Project project);
 }
