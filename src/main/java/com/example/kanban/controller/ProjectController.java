@@ -35,11 +35,25 @@ public class ProjectController {
     }
 
     @PostMapping("projects")
-    public ResponseEntity<Project> addProect(@RequestBody Project project) {
+    public ResponseEntity<Project> addProject(@RequestBody Project project) {
         Project savedProject = projectService.addProject(project);
 
         URI location = LocationUtil.buildLocation(savedProject);
 
         return ResponseEntity.created(location).body(savedProject);
+    }
+
+    @PutMapping("projects/{id}")
+    public ResponseEntity<Project> editProject(@PathVariable String id, @RequestBody Project project) {
+        Project savedProject = projectService.editProject(id, project);
+
+        return ResponseEntity.ok(savedProject);
+    }
+
+    @PatchMapping("projects/{id}")
+    public ResponseEntity<Project> editPartialProject(@PathVariable String id, @RequestBody Project project) {
+        Project savedProject = projectService.editPartialProject(id,project);
+
+        return ResponseEntity.ok(savedProject);
     }
 }
