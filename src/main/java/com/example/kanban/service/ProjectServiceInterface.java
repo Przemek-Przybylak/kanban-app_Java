@@ -21,4 +21,7 @@ public interface ProjectServiceInterface {
 
     @Transactional
     Project editPartialProject(String id, Project project);
+
+    @Transactional
+    void deleteProject(String id);
 }
