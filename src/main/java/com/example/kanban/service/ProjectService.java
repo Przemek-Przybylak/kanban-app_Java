@@ -60,6 +60,14 @@ public class ProjectService implements ProjectServiceInterface {
         return projectRepository.save(existingProject);
     }
 
+    @Transactional
+    @Override
+    public void deleteProject(String id) {
+        Project project = checkProjectExist(id);
+
+        projectRepository.delete(project);
+    }
+
     private Project checkProjectExist(String id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
