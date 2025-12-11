@@ -4,6 +4,7 @@ import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.service.ProjectService;
 import com.example.kanban.util.LocationUtil;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,5 +56,13 @@ public class ProjectController {
         Project savedProject = projectService.editPartialProject(id,project);
 
         return ResponseEntity.ok(savedProject);
+    }
+
+    @DeleteMapping("projects/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
+
+        projectService.deleteProject(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
