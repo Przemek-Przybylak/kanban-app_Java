@@ -29,7 +29,7 @@ public class Task implements HasId {
 
     private LocalDateTime dueDate;
     private LocalDateTime createdAt;
-    private String status;
+    private String status = "todo";
 
     @ElementCollection
     @CollectionTable(
@@ -44,5 +44,10 @@ public class Task implements HasId {
     @ManyToOne
     @JoinColumn(name = "project_id")
     @JsonIgnoreProperties("tasks")
-    private Project project;
+    private Project project = new Project();
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
