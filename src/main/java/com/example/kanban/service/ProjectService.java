@@ -36,25 +36,29 @@ public class ProjectService implements ProjectServiceInterface {
     @Transactional
     @Override
     public Project addProject(Project project) {
-
         return projectRepository.save(project);
     }
 
     @Transactional
     @Override
     public Project editProject(String id, Project project) {
-        checkProjectExist(id);
+        Project existingProject = checkProjectExist(id);
 
-        return projectRepository.save(project);
+        existingProject.setTitle(project.getTitle());
+        existingProject.setDescription(project.getDescription());
+        existingProject.setMembers(project.getMembers());
+
+        return projectRepository.save(existingProject);
     }
 
     @Transactional
     @Override
     public Project editPartialProject(String id, Project project) {
         Project existingProject = checkProjectExist(id);
+
+        updateIfNotNull(project.getMembers(), existingProject::setMembers);
         updateIfNotNull(project.getDescription(), existingProject::setDescription);
         updateIfNotNull(project.getTitle(), existingProject::setTitle);
-        updateIfNotNull(project.getMembers(), existingProject::setMembers);
         updateIfNotNull(project.getTasks(), existingProject::setTasks);
 
         return projectRepository.save(existingProject);
