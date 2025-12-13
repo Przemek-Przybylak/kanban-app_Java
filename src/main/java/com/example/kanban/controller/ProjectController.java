@@ -1,9 +1,9 @@
 package com.example.kanban.controller;
 
 import com.example.kanban.DTO.Mapper;
+import com.example.kanban.DTO.ProjectRequestDto;
 import com.example.kanban.DTO.ProjectResponseDto;
 import com.example.kanban.model.Project;
-import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.service.ProjectService;
 import com.example.kanban.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,9 @@ import java.util.List;
 
 @RestController
 public class ProjectController {
-    private final ProjectRepository projectRepository;
     private final ProjectService projectService;
 
-    public ProjectController(ProjectRepository projectRepository, ProjectService projectService) {
-        this.projectRepository = projectRepository;
+    public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }
 
@@ -43,7 +41,9 @@ public class ProjectController {
     }
 
     @PostMapping("projects")
-    public ResponseEntity<ProjectResponseDto> addProject(@RequestBody Project project) {
+    public ResponseEntity<ProjectResponseDto> addProject(@RequestBody ProjectRequestDto projectDto) {
+        Project project = Mapper.fromDto(projectDto);
+
         Project savedProject = projectService.addProject(project);
 
         ProjectResponseDto projectResponseDto = Mapper.toDto(savedProject);
@@ -54,7 +54,9 @@ public class ProjectController {
     }
 
     @PutMapping("projects/{id}")
-    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @RequestBody Project project) {
+    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @RequestBody ProjectRequestDto projectDto) {
+        Project project = Mapper.fromDto(projectDto);
+
         Project savedProject = projectService.editProject(id, project);
 
         ProjectResponseDto projectResponseDto = Mapper.toDto(savedProject);
@@ -63,7 +65,8 @@ public class ProjectController {
     }
 
     @PatchMapping("projects/{id}")
-    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody Project project) {
+    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody ProjectRequestDto projectDto) {
+        Project project = Mapper.fromDto(projectDto);
         Project savedProject = projectService.editPartialProject(id, project);
 
         ProjectResponseDto projectResponseDto = Mapper.toDto(savedProject);
