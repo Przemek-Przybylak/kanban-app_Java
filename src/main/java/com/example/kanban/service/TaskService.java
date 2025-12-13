@@ -40,24 +40,28 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public Task addTask(Task task) {
-        Project project = checkProjectExist(task.getProject().getId());
+    public Task addTask(String projectId, Task task) {
+        Project project = checkProjectExist(projectId);
 
         task.setProject(project);
 
         return taskRepository.save(task);
     }
 
-
     @Transactional
     @Override
     public Task editTask(String id, Task task) {
-        checkTaskExisting(id);
+        Task existingTask = checkTaskExisting(id);
+        checkProjectExist(existingTask.getProject().getId());
 
-        checkProjectExist(task.getProject().getId());
+        existingTask.setTitle(task.getTitle());
+        existingTask.setDescription(task.getDescription());
+        existingTask.setStatus(task.getStatus());
+        existingTask.setMembers(task.getMembers());
+        existingTask.setDueDate(task.getDueDate());
+        existingTask.setApprovedBy(task.getApprovedBy());
 
-        return taskRepository.save(task);
-
+        return taskRepository.save(existingTask);
     }
 
     @Transactional
@@ -67,11 +71,7 @@ public class TaskService implements TaskServiceInterface {
         Project project = checkProjectExist(existingTask.getProject().getId());
         existingTask.setProject(project);
 
-        updateIfNotNull(task.getMembers(), newMembers -> {
-            existingTask.getMembers().clear();
-            existingTask.getMembers().addAll(newMembers);
-        });
-
+        updateIfNotNull(task.getMembers(), existingTask::setMembers);
         updateIfNotNull(task.getDescription(), existingTask::setDescription);
         updateIfNotNull(task.getStatus(), existingTask::setStatus);
         updateIfNotNull(task.getApprovedBy(), existingTask::setApprovedBy);
