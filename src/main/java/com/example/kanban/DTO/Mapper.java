@@ -19,6 +19,16 @@ public class Mapper {
         );
     }
 
+    public static Project fromDto(ProjectRequestDto dto) {
+        Project project = new Project();
+
+        project.setTitle(dto.title());
+        project.setDescription(dto.description());
+        project.setMembers(dto.members());
+
+        return project;
+    }
+
     public static TaskResponseDto toDto(Task entity) {
         return new TaskResponseDto(
                 entity.getId(),
@@ -31,5 +41,18 @@ public class Mapper {
                 entity.getCreatedAt(),
                 new shortProjectDto(entity.getProject().getId(), entity.getProject().getTitle())
         );
+    }
+
+    public static Task fromDto(TaskRequestDto taskDto) {
+        Task task = new Task();
+
+        task.setTitle(taskDto.title());
+        task.setDescription(taskDto.description());
+        task.setStatus(taskDto.status());
+        task.setDueDate(taskDto.dueDate());
+        task.setMembers(taskDto.members());
+        task.setApprovedBy(taskDto.approvedBy());
+
+        return task;
     }
 }
