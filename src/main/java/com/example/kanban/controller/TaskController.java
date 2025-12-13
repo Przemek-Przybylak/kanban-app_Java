@@ -1,5 +1,7 @@
 package com.example.kanban.controller;
 
+import com.example.kanban.DTO.Mapper;
+import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.service.TaskService;
@@ -21,40 +23,58 @@ public class TaskController {
     }
 
     @GetMapping("tasks")
-    public ResponseEntity<List<Task>> getAllTasks() {
+    public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
         List<Task> allTasks = taskRepository.findAll();
 
-        return ResponseEntity.ok(allTasks);
+        List<TaskResponseDto> tasksResponseDto = allTasks.stream()
+                .map(Mapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(tasksResponseDto);
     }
 
     @GetMapping("tasks/{id}")
-    public ResponseEntity<Task> getTask(@PathVariable String id) {
+    public ResponseEntity<TaskResponseDto> getTask(@PathVariable String id) {
         Task task = taskService.getTask(id);
 
-        return ResponseEntity.ok(task);
+        TaskResponseDto taskResponseDto = Mapper.toDto(task);
+
+        return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PostMapping("tasks/{projectId}")
-    public ResponseEntity<Task> addTask(@PathVariable String projectId, @RequestBody Task task) {
-        Task savedTask = taskService.addTask(projectId, task);
+    @PostMapping("tasks")
+    public ResponseEntity<TaskResponseDto> addTask(@RequestBody Task task) {
+        System.out.println("tasks:  " + task);
+
+        Task savedTask = taskService.addTask(task);
+
+        System.out.println(savedTask);
+
+        TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
+
+        System.out.println(taskResponseDto);
 
         URI location = LocationUtil.buildLocation(savedTask);
 
-        return ResponseEntity.created(location).body(savedTask);
+        return ResponseEntity.created(location).body(taskResponseDto);
     }
 
-    @PutMapping("tasks/{projectId}")
-    public ResponseEntity<Task> editTask(@PathVariable String projectId, @RequestBody Task task) {
-        Task savedTask = taskService.editTask(projectId, task);
+    @PutMapping("tasks/{id}")
+    public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @RequestBody Task task) {
+        Task savedTask = taskService.editTask(id, task);
 
-        return ResponseEntity.ok(savedTask);
+        TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
+
+        return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PatchMapping("tasks/{taskId}")
-    public ResponseEntity<Task> editPartialTask(@PathVariable String id, @RequestBody Task task) {
+    @PatchMapping("tasks/{id}")
+    public ResponseEntity<TaskResponseDto> editPartialTask(@PathVariable String id, @RequestBody Task task) {
         Task savedTask = taskService.editPartialTask(id, task);
 
-        return ResponseEntity.ok(savedTask);
+        TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
+
+        return ResponseEntity.ok(taskResponseDto);
     }
 
     @DeleteMapping("tasks/{id}")
