@@ -1,9 +1,9 @@
 package com.example.kanban.controller;
 
 import com.example.kanban.DTO.Mapper;
+import com.example.kanban.DTO.TaskRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Task;
-import com.example.kanban.model.TaskRepository;
 import com.example.kanban.service.TaskService;
 import com.example.kanban.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +14,15 @@ import java.util.List;
 
 @RestController
 public class TaskController {
-    private final TaskRepository taskRepository;
     private final TaskService taskService;
 
-    public TaskController(TaskRepository taskRepository, TaskService taskService) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService) {
         this.taskService = taskService;
     }
 
     @GetMapping("tasks")
     public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
-        List<Task> allTasks = taskRepository.findAll();
+        List<Task> allTasks = taskService.getAllTasks();
 
         List<TaskResponseDto> tasksResponseDto = allTasks.stream()
                 .map(Mapper::toDto)
@@ -42,17 +40,12 @@ public class TaskController {
         return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PostMapping("tasks")
-    public ResponseEntity<TaskResponseDto> addTask(@RequestBody Task task) {
-        System.out.println("tasks:  " + task);
-
-        Task savedTask = taskService.addTask(task);
-
-        System.out.println(savedTask);
+    @PostMapping("tasks/{projectId}")
+    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @RequestBody TaskRequestDto taskDto) {
+        Task task = Mapper.fromDto(taskDto);
+        Task savedTask = taskService.addTask(projectId, task);
 
         TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
-
-        System.out.println(taskResponseDto);
 
         URI location = LocationUtil.buildLocation(savedTask);
 
@@ -60,7 +53,8 @@ public class TaskController {
     }
 
     @PutMapping("tasks/{id}")
-    public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @RequestBody Task task) {
+    public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @RequestBody TaskRequestDto taskDto) {
+        Task task = Mapper.fromDto(taskDto);
         Task savedTask = taskService.editTask(id, task);
 
         TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
@@ -69,7 +63,8 @@ public class TaskController {
     }
 
     @PatchMapping("tasks/{id}")
-    public ResponseEntity<TaskResponseDto> editPartialTask(@PathVariable String id, @RequestBody Task task) {
+    public ResponseEntity<TaskResponseDto> editPartialTask(@PathVariable String id, @RequestBody TaskRequestDto taskDto) {
+        Task task = Mapper.fromDto(taskDto);
         Task savedTask = taskService.editPartialTask(id, task);
 
         TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
