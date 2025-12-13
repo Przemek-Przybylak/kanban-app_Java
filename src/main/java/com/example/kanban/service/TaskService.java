@@ -40,8 +40,8 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public Task addTask(String projectId, Task task) {
-        Project project = checkProjectExist(projectId);
+    public Task addTask(Task task) {
+        Project project = checkProjectExist(task.getProject().getId());
 
         task.setProject(project);
 
@@ -51,10 +51,10 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public Task editTask(String projectId, Task task) {
-        checkTaskExisting(task.getId());
+    public Task editTask(String id, Task task) {
+        checkTaskExisting(id);
 
-        checkProjectExist(projectId);
+        checkProjectExist(task.getProject().getId());
 
         return taskRepository.save(task);
 
@@ -62,8 +62,8 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public Task editPartialTask(String taskId, Task task) {
-        Task existingTask = checkTaskExisting(taskId);
+    public Task editPartialTask(String id, Task task) {
+        Task existingTask = checkTaskExisting(id);
         Project project = checkProjectExist(existingTask.getProject().getId());
         existingTask.setProject(project);
 
