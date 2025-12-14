@@ -29,7 +29,7 @@ public class Task implements HasId {
 
     private LocalDateTime dueDate;
     private LocalDateTime createdAt;
-    private String status = "todo";
+    private String status;
 
     @ElementCollection
     @CollectionTable(
@@ -49,5 +49,8 @@ public class Task implements HasId {
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = "todo";
+        }
     }
 }
