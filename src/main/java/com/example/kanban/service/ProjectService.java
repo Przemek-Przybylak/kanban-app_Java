@@ -26,6 +26,14 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
+    public List<Task> getTaskByProject(String id) {
+        return taskRepository.findAll().stream()
+                .filter(task -> task.getProject().getId() != null && task.getProject().getId().equals(id))
+                .toList();
+    }
+
+    @Transactional
+    @Override
     public Task addTask(String projectId, Task task) {
         Project project = checkProjectExist(projectId);
 
