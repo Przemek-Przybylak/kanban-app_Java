@@ -40,18 +40,6 @@ public class TaskController {
         return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PostMapping("tasks/{projectId}")
-    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @RequestBody TaskRequestDto taskDto) {
-        Task task = Mapper.fromDto(taskDto);
-        Task savedTask = taskService.addTask(projectId, task);
-
-        TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
-
-        URI location = LocationUtil.buildLocation(savedTask);
-
-        return ResponseEntity.created(location).body(taskResponseDto);
-    }
-
     @PutMapping("tasks/{id}")
     public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @RequestBody TaskRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);

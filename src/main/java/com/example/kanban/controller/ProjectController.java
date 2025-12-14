@@ -1,9 +1,8 @@
 package com.example.kanban.controller;
 
-import com.example.kanban.DTO.Mapper;
-import com.example.kanban.DTO.ProjectRequestDto;
-import com.example.kanban.DTO.ProjectResponseDto;
+import com.example.kanban.DTO.*;
 import com.example.kanban.model.Project;
+import com.example.kanban.model.Task;
 import com.example.kanban.service.ProjectService;
 import com.example.kanban.util.LocationUtil;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +17,18 @@ public class ProjectController {
 
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
+    }
+
+    @PostMapping("projects/{projectId}/tasks")
+    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @RequestBody TaskRequestDto taskDto) {
+        Task task = Mapper.fromDto(taskDto);
+        Task savedTask = projectService.addTask(projectId, task);
+
+        TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
+
+        URI location = LocationUtil.buildLocation(savedTask);
+
+        return ResponseEntity.created(location).body(taskResponseDto);
     }
 
     @GetMapping("projects")
