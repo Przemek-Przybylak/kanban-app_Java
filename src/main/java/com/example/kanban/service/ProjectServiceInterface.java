@@ -9,6 +9,9 @@ import java.util.List;
 public interface ProjectServiceInterface {
 
     @Transactional
+    List<Task> getTaskByProject(String id);
+
+    @Transactional
     Task addTask(String projectId, Task task);
 
     @Transactional(readOnly = true)
