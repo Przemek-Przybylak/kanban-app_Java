@@ -2,6 +2,8 @@ package com.example.kanban.service;
 
 import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
+import com.example.kanban.model.Task;
+import com.example.kanban.model.TaskRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,9 +16,22 @@ import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 @Service
 public class ProjectService implements ProjectServiceInterface {
     private final ProjectRepository projectRepository;
+    private final TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository) {
+
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository) {
         this.projectRepository = projectRepository;
+        this.taskRepository = taskRepository;
+    }
+
+    @Transactional
+    @Override
+    public Task addTask(String projectId, Task task) {
+        Project project = checkProjectExist(projectId);
+
+        task.setProject(project);
+
+        return taskRepository.save(task);
     }
 
     @Transactional(readOnly = true)

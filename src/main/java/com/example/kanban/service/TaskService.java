@@ -40,16 +40,6 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public Task addTask(String projectId, Task task) {
-        Project project = checkProjectExist(projectId);
-
-        task.setProject(project);
-
-        return taskRepository.save(task);
-    }
-
-    @Transactional
-    @Override
     public Task editTask(String id, Task task) {
         Task existingTask = checkTaskExisting(id);
         checkProjectExist(existingTask.getProject().getId());
