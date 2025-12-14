@@ -19,6 +19,17 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
+    @GetMapping("projects/{projectId}/tasks")
+    public ResponseEntity<List<TaskResponseDto>> getTaskByProject(@PathVariable String projectId) {
+        List<Task> projectTasks = projectService.getTaskByProject(projectId);
+
+        List<TaskResponseDto> tasksResponseDto = projectTasks.stream()
+                .map(Mapper::toDto)
+                .toList();
+
+        return ResponseEntity.ok(tasksResponseDto);
+    }
+
     @PostMapping("projects/{projectId}/tasks")
     public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @RequestBody TaskRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);
