@@ -13,9 +13,6 @@ public interface TaskServiceInterface {
     Task getTask(String id);
 
     @Transactional
-    Task addTask(String projectId, Task task);
-
-    @Transactional
     Task editTask(String id, Task task);
 
     @Transactional

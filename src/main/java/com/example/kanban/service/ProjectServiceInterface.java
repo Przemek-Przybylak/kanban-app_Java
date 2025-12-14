@@ -1,11 +1,15 @@
 package com.example.kanban.service;
 
 import com.example.kanban.model.Project;
+import com.example.kanban.model.Task;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 public interface ProjectServiceInterface {
+
+    @Transactional
+    Task addTask(String projectId, Task task);
 
     @Transactional(readOnly = true)
     List<Project> getAllProjects();
