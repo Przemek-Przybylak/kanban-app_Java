@@ -6,6 +6,7 @@ import com.example.kanban.model.Task;
 import com.example.kanban.service.ProjectService;
 import com.example.kanban.util.LocationUtil;
 import com.example.kanban.validation.OnCreate;
+import com.example.kanban.validation.OnUpdate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +66,7 @@ public class ProjectController {
     }
 
     @PostMapping("projects")
-    public ResponseEntity<ProjectResponseDto> addProject(@RequestBody ProjectRequestDto projectDto) {
+    public ResponseEntity<ProjectResponseDto> addProject(@Validated(OnCreate.class) @RequestBody ProjectRequestDto projectDto) {
         Project project = Mapper.fromDto(projectDto);
 
         Project savedProject = projectService.addProject(project);
@@ -78,7 +79,7 @@ public class ProjectController {
     }
 
     @PutMapping("projects/{id}")
-    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @RequestBody ProjectRequestDto projectDto) {
+    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id,@Validated(OnUpdate.class) @RequestBody ProjectRequestDto projectDto) {
         Project project = Mapper.fromDto(projectDto);
 
         Project savedProject = projectService.editProject(id, project);

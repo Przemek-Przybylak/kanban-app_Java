@@ -9,7 +9,7 @@ import java.util.List;
 
 public record TaskRequestDto(
 
-        @NotBlank(groups = {OnCreate.class, OnUpdate.class}, message = "Task is required")
+        @NotBlank(groups = {OnCreate.class, OnUpdate.class}, message = "Title is required")
         String title,
         @NotBlank(groups = {OnCreate.class, OnUpdate.class}, message = "Description is required")
         String description,
