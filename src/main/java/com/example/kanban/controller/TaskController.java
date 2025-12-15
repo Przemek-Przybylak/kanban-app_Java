@@ -5,11 +5,11 @@ import com.example.kanban.DTO.TaskRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Task;
 import com.example.kanban.service.TaskService;
-import com.example.kanban.util.LocationUtil;
+import com.example.kanban.validation.OnUpdate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -41,7 +41,7 @@ public class TaskController {
     }
 
     @PutMapping("tasks/{id}")
-    public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @RequestBody TaskRequestDto taskDto) {
+    public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @Validated(OnUpdate.class) @RequestBody TaskRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);
         Task savedTask = taskService.editTask(id, task);
 
