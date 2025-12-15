@@ -5,7 +5,9 @@ import com.example.kanban.model.Project;
 import com.example.kanban.model.Task;
 import com.example.kanban.service.ProjectService;
 import com.example.kanban.util.LocationUtil;
+import com.example.kanban.validation.OnCreate;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,7 +33,7 @@ public class ProjectController {
     }
 
     @PostMapping("projects/{projectId}/tasks")
-    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @RequestBody TaskRequestDto taskDto) {
+    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @Validated(OnCreate.class) @RequestBody TaskRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);
         Task savedTask = projectService.addTask(projectId, task);
 
