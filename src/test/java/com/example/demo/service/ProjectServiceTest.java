@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,7 +19,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceTest {
@@ -33,6 +33,34 @@ public class ProjectServiceTest {
 
     @InjectMocks
     ProjectService projectService;
+
+    @Test
+    void shouldReturnProjectTasks() {
+        Project project1 = new Project();
+        project1.setId("p1");
+
+        Project project2 = new Project();
+        project2.setId("p2");
+
+        Task task1 = new Task();
+        task1.setId("t1");
+        task1.setProject(project1);
+
+        Task task2 = new Task();
+        task1.setId("t2");
+        task2.setProject(project1);
+
+        Task task3 = new Task();
+        task3.setId("t3");
+        task3.setProject(project2);
+
+        when(taskRepository.findAll())
+                .thenReturn(List.of(task1, task2, task3));
+
+        List<Task> result = projectService.getTaskByProject("p1");
+
+        assertEquals(2, result.size());
+    }
 
     @Test
     void shouldReturnProjectWhenExist() {
