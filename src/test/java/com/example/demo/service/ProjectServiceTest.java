@@ -63,6 +63,40 @@ public class ProjectServiceTest {
     }
 
     @Test
+    void shouldAddTask() {
+        Project project = new Project();
+        project.setId("p1");
+
+        Task task = new Task();
+        task.setTitle("t1");
+
+        when(projectRepository.findById("p1"))
+                .thenReturn(Optional.of(project));
+
+        when(taskRepository.save(any(Task.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Task result = projectService.addTask("p1", task);
+
+        assertEquals(project, result.getProject());
+        assertEquals("t1", result.getTitle());
+
+        verify(taskRepository).save(task);
+    }
+
+    @Test
+    void chouldThrowExceptionWhenProjectNotFound() {
+        Task task = new Task();
+
+        when(projectRepository.findById("p1"))
+                .thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> projectService.addTask("p1", task));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
+    @Test
     void shouldReturnProjectWhenExist() {
         Project project = new Project();
         project.setId("123");
