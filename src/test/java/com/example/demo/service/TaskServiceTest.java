@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -90,4 +91,18 @@ public class TaskServiceTest {
         
         verify(taskRepository).deleteById("123");
     }
+
+    @Test
+    void shouldThrowExceptionWhenTaskToDeleteNotExist() {
+        doThrow(EmptyResultDataAccessException.class)
+                .when(taskRepository)
+                .deleteById("123");
+
+        ResponseStatusException exception =
+                assertThrows(ResponseStatusException.class,
+                        () -> taskService.deleteTask("123"));
+
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+    }
+
 }
