@@ -76,8 +76,6 @@ This project is containerized using Docker:
 docker compose up --build
 The app will be available at:
 
-arduino
-
 http://localhost:8080
 PostgreSQL will be running on port 5432.
 
@@ -136,6 +134,7 @@ DELETE	/projects/{id}	Delete project
 
 Explore more in Swagger UI.
 
+```
 📝 Notes
 ✔ Suitable for junior backend portfolios
 ✔ Containerization simplifies deployment and testing
