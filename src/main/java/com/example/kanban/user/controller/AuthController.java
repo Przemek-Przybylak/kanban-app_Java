@@ -1,5 +1,6 @@
 package com.example.kanban.user.controller;
 
+import com.example.kanban.user.dto.LoginRequestDto;
 import com.example.kanban.user.dto.RegisterRequestDto;
 import com.example.kanban.user.dto.UserResponseDto;
 import com.example.kanban.user.service.UserService;
@@ -25,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public UserResponseDto login(@RequestBody RegisterRequestDto request) {
+    public UserResponseDto login(@RequestBody LoginRequestDto request) {
         return userService.login(request);
     }
 }
