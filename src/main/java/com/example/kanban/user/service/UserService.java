@@ -1,5 +1,6 @@
 package com.example.kanban.user.service;
 
+import com.example.kanban.user.dto.LoginRequestDto;
 import com.example.kanban.user.dto.RegisterRequestDto;
 import com.example.kanban.user.dto.UserResponseDto;
 import com.example.kanban.user.model.Role;
@@ -38,7 +39,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserResponseDto login(RegisterRequestDto requestDto) {
+    public UserResponseDto login(LoginRequestDto requestDto) {
         User user = userRepository.findByLogin(requestDto.getLogin())
                 .orElseThrow(
                         () -> new ResponseStatusException(
@@ -51,6 +52,6 @@ public class UserService {
             );
         }
 
-        return new UserResponseDto(user.getLogin(), user.getRole(), user.getId());
+        return new UserResponseDto(user.getId(), user.getRole(), user.getLogin());
     }
 }
