@@ -6,6 +6,7 @@ import com.example.kanban.user.dto.UserResponseDto;
 import com.example.kanban.user.model.Role;
 import com.example.kanban.user.model.User;
 import com.example.kanban.user.repository.UserRepository;
+import com.example.kanban.user.util.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,6 +53,8 @@ public class UserService {
             );
         }
 
-        return new UserResponseDto(user.getId(), user.getRole(), user.getLogin());
+        String token = JwtUtil.generateToken(user.getLogin());
+
+        return new UserResponseDto(token, user.getId(), user.getRole(), user.getLogin());
     }
 }
