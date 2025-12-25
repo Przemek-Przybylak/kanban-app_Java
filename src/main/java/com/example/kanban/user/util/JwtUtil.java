@@ -11,8 +11,8 @@ public class JwtUtil {
     private static final String SECRET = "przemek_super_secure_secret_256_bit";
     private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(String login) {
-        long jwtExpiration = 60 * 60 * 60 * 3;
+    public static String generateToken(String login) {
+        long jwtExpiration = 60 * 60  * 3 * 1000;
         return Jwts.builder()
                 .subject(login)
                 .issuedAt(new Date())
@@ -21,7 +21,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String getLoginFromToken(String token) {
+    public static String getLoginFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(KEY)
                 .build()
