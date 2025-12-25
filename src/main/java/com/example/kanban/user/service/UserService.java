@@ -26,26 +26,26 @@ public class UserService {
 
     @Transactional
     public User register(RegisterRequestDto requestDto) {
-        Optional<User> isUsernameUse = userRepository.findByLogin(requestDto.getLogin());
+        Optional<User> isUsernameUse = userRepository.findByLogin(requestDto.login());
         if (isUsernameUse.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already used");
         }
 
         User user = new User();
         user.setRole(Role.USER);
-        user.setLogin(requestDto.getLogin());
-        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+        user.setLogin(requestDto.login());
+        user.setPassword(passwordEncoder.encode(requestDto.password()));
 
         return userRepository.save(user);
     }
 
     public UserResponseDto login(LoginRequestDto requestDto) {
-        User user = userRepository.findByLogin(requestDto.getLogin())
+        User user = userRepository.findByLogin(requestDto.login())
                 .orElseThrow(
                         () -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND, "User not found"));
 
-        if (!passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.password(), user.getPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Invalid password"
