@@ -41,11 +41,11 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public Task addTask(String projectId, Task task) {
-        User user = userService.getUserById(projectId);
+    public Task addTask(String projectId, Task task, String username) {
         Project project = checkProjectExist(projectId);
+        User owner = getOwner(username);
 
-        task.setUser(user);
+        task.setUser(owner);
         task.setProject(project);
 
         return taskRepository.save(task);
@@ -68,8 +68,7 @@ public class ProjectService implements ProjectServiceInterface {
     @Transactional
     @Override
     public Project addProject(Project project, String username) {
-        User owner = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User owner = getOwner(username);
 
         project.getUsers().add(owner);
         owner.getProjects().add(project);
@@ -112,6 +111,11 @@ public class ProjectService implements ProjectServiceInterface {
     private Project checkProjectExist(String id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+    }
+
+    private User getOwner(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 }
 

@@ -76,7 +76,7 @@ public class ProjectServiceTest {
         when(taskRepository.save(any(Task.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Task result = projectService.addTask("p1", task);
+        Task result = projectService.addTask("p1", task, "u1");
 
         assertEquals(project, result.getProject());
         assertEquals("t1", result.getTitle());
@@ -91,7 +91,7 @@ public class ProjectServiceTest {
         when(projectRepository.findById("p1"))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> projectService.addTask("p1", task));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> projectService.addTask("p1", task,"u1" ));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }

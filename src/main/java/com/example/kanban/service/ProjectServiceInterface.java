@@ -12,7 +12,7 @@ public interface ProjectServiceInterface {
     List<Task> getTaskByProject(String id);
 
     @Transactional
-    Task addTask(String projectId, Task task);
+    Task addTask(String projectId, Task task, String username);
 
     @Transactional(readOnly = true)
     List<Project> getAllProjects();

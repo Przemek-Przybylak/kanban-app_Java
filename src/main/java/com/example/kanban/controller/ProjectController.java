@@ -35,9 +35,11 @@ public class ProjectController {
     }
 
     @PostMapping("projects/{projectId}/tasks")
-    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @Validated(OnCreate.class) @RequestBody TaskRequestDto taskDto) {
+    public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @Validated(OnCreate.class) @RequestBody TaskRequestDto taskDto, Authentication authentication) {
         Task task = Mapper.fromDto(taskDto);
-        Task savedTask = projectService.addTask(projectId, task);
+        String username = authentication.getName();
+
+        Task savedTask = projectService.addTask(projectId, task, username);
 
         TaskResponseDto taskResponseDto = Mapper.toDto(savedTask);
 
