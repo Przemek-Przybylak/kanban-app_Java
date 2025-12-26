@@ -21,7 +21,7 @@ public interface ProjectServiceInterface {
     Project getProject(String id);
 
     @Transactional
-    Project addProject(Project project);
+    Project addProject(Project project, String username);
 
     @Transactional
     Project editProject(String id, Project project);
