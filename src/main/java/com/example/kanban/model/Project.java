@@ -1,5 +1,6 @@
 package com.example.kanban.model;
 
+import com.example.kanban.user.model.User;
 import com.example.kanban.util.HasId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -42,6 +43,10 @@ public class Project implements HasId {
     @OneToMany(mappedBy = "project")
     @JsonIgnoreProperties("project")
     private List<Task> tasks = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "projects")
+    @JsonIgnoreProperties("projects")
+    private List<User> users = new ArrayList<>();
 
     @PrePersist
     public void onCreate() {

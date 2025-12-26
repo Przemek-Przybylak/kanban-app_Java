@@ -1,5 +1,6 @@
 package com.example.kanban.user.model;
 
+import com.example.kanban.model.Project;
 import com.example.kanban.model.Task;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -21,7 +22,7 @@ public class User {
     private String id;
 
     @Column(unique = true, nullable = false)
-    private String login;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -33,4 +34,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties("user")
     private List<Task> tasks = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_projects",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    @JsonIgnoreProperties("users")
+    private List<Project> projects = new ArrayList<>();
+
 }

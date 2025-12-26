@@ -27,21 +27,22 @@ public class UserService {
 
     @Transactional
     public User register(RegisterRequestDto requestDto) {
-        Optional<User> isUsernameUse = userRepository.findByLogin(requestDto.login());
+        Optional<User> isUsernameUse = userRepository.findByUsername(requestDto.
+                username());
         if (isUsernameUse.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already used");
         }
 
         User user = new User();
         user.setRole(Role.USER);
-        user.setLogin(requestDto.login());
+        user.setUsername(requestDto.username());
         user.setPassword(passwordEncoder.encode(requestDto.password()));
 
         return userRepository.save(user);
     }
 
     public UserResponseDto login(LoginRequestDto requestDto) {
-        User user = userRepository.findByLogin(requestDto.login())
+        User user = userRepository.findByUsername(requestDto.username())
                 .orElseThrow(
                         () -> new ResponseStatusException(
                                 HttpStatus.NOT_FOUND, "User not found"));
@@ -53,8 +54,8 @@ public class UserService {
             );
         }
 
-        String token = JwtUtil.generateToken(user.getLogin());
+        String token = JwtUtil.generateToken(user.getUsername());
 
-        return new UserResponseDto(token, user.getId(), user.getRole(), user.getLogin());
+        return new UserResponseDto(token, user.getId(), user.getRole(), user.getUsername());
     }
 }

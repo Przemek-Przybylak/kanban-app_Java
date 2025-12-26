@@ -1,4 +1,4 @@
 package com.example.kanban.user.dto;
 
-public record RegisterRequestDto(String login, String password) {
+public record RegisterRequestDto(String username, String password) {
 }
