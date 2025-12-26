@@ -21,7 +21,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public static String getLoginFromToken(String token) {
+    public static String getUsernameFromToken(String token) {
         return Jwts.parser()
                 .verifyWith(KEY)
                 .build()
