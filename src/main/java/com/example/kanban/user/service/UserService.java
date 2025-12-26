@@ -58,4 +58,10 @@ public class UserService {
 
         return new UserResponseDto(token, user.getId(), user.getRole(), user.getUsername());
     }
+
+    @Transactional
+    public User getUserById(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 }
