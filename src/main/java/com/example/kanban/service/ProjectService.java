@@ -4,6 +4,9 @@ import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
+import com.example.kanban.user.model.User;
+import com.example.kanban.user.repository.UserRepository;
+import com.example.kanban.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +20,15 @@ import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 public class ProjectService implements ProjectServiceInterface {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
 
-    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository) {
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
+        this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -35,8 +42,10 @@ public class ProjectService implements ProjectServiceInterface {
     @Transactional
     @Override
     public Task addTask(String projectId, Task task) {
+        User user = userService.getUserById(projectId);
         Project project = checkProjectExist(projectId);
 
+        task.setUser(user);
         task.setProject(project);
 
         return taskRepository.save(task);
@@ -58,7 +67,12 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public Project addProject(Project project) {
+    public Project addProject(Project project, String username) {
+        User owner = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        project.getUsers().add(owner);
+        owner.getProjects().add(project);
         return projectRepository.save(project);
     }
 
