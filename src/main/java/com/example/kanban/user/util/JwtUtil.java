@@ -2,28 +2,41 @@ package com.example.kanban.user.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
-    private static final String SECRET = "przemek_super_secure_secret_256_bit";
-    private static final SecretKey KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    @Value("${app.jwt.secret}")
+    public String secret;
 
-    public static String generateToken(String username) {
-        long jwtExpiration = 60 * 60  * 3 * 1000;
+    @Value("${app.jwt.expiration}")
+    public  long jwtExpiration;
+
+    private  SecretKey getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public String generateToken(String username) {
+
+
         return Jwts.builder()
+                .header().add("typ", "JWT").and()
                 .subject(username)
+                .claim("scope", "ROLE_USER")
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(KEY)
+                .signWith(getSigningKey())
                 .compact();
     }
 
-    public static String getUsernameFromToken(String token) {
+    public String getUsernameFromToken(String token) {
         return Jwts.parser()
-                .verifyWith(KEY)
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
