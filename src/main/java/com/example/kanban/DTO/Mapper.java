@@ -38,6 +38,16 @@ public class Mapper {
         return project;
     }
 
+    public static Project fromDto(ProjectPatchRequestDto dto) {
+        Project project = new Project();
+
+        project.setTitle(dto.title());
+        project.setDescription(dto.description());
+        project.setMembers(dto.members());
+
+        return project;
+    }
+
     public static TaskResponseDto toDto(Task entity) {
         return new TaskResponseDto(
                 entity.getId(),
@@ -60,6 +70,18 @@ public class Mapper {
         task.setStatus(taskDto.status());
         task.setDueDate(taskDto.dueDate());
         task.setMembers(taskDto.members());
+        task.setApprovedBy(taskDto.approvedBy());
+
+        return task;
+    }
+
+    public static Task fromDto(TaskPatchRequestDto taskDto) {
+        Task task = new Task();
+
+        task.setTitle(taskDto.title());
+        task.setDescription(taskDto.description());
+        task.setStatus(taskDto.status());
+        task.setDueDate(taskDto.dueDate());
         task.setApprovedBy(taskDto.approvedBy());
 
         return task;
