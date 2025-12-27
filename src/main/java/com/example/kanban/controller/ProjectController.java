@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/projects")
 public class ProjectController {
     private final ProjectService projectService;
 
@@ -23,7 +24,7 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping("projects/{projectId}/tasks")
+    @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<TaskResponseDto>> getTaskByProject(@PathVariable String projectId) {
         List<Task> projectTasks = projectService.getTaskByProject(projectId);
 
@@ -34,7 +35,7 @@ public class ProjectController {
         return ResponseEntity.ok(tasksResponseDto);
     }
 
-    @PostMapping("projects/{projectId}/tasks")
+    @PostMapping("/{projectId}/tasks")
     public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @Validated(OnCreate.class) @RequestBody TaskRequestDto taskDto, Authentication authentication) {
         Task task = Mapper.fromDto(taskDto);
         String username = authentication.getName();
@@ -48,7 +49,7 @@ public class ProjectController {
         return ResponseEntity.created(location).body(taskResponseDto);
     }
 
-    @GetMapping("projects")
+    @GetMapping
     public ResponseEntity<List<ProjectResponseDto>> getProjects() {
         List<Project> projects = projectService.getAllProjects();
 
@@ -59,7 +60,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectsResponseDto);
     }
 
-    @GetMapping("projects/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> getProject(@PathVariable String id) {
         Project project = projectService.getProject(id);
 
@@ -68,7 +69,7 @@ public class ProjectController {
         return ResponseEntity.ok(projectResponseDto);
     }
 
-    @PostMapping("projects")
+    @PostMapping
     public ResponseEntity<ProjectResponseDto> addProject(@Validated(OnCreate.class) @RequestBody ProjectRequestDto projectDto, Authentication authentication) {
         Project project = Mapper.fromDto(projectDto);
 
@@ -83,7 +84,7 @@ public class ProjectController {
         return ResponseEntity.created(location).body(projectResponseDto);
     }
 
-    @PutMapping("projects/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @Validated(OnUpdate.class) @RequestBody ProjectRequestDto projectDto) {
         Project project = Mapper.fromDto(projectDto);
 
@@ -94,8 +95,8 @@ public class ProjectController {
         return ResponseEntity.ok(projectResponseDto);
     }
 
-    @PatchMapping("projects/{id}")
-    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody ProjectRequestDto projectDto) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody ProjectPatchRequestDto projectDto) {
         Project project = Mapper.fromDto(projectDto);
         Project savedProject = projectService.editPartialProject(id, project);
 
@@ -104,8 +105,8 @@ public class ProjectController {
         return ResponseEntity.ok(projectResponseDto);
     }
 
-    @DeleteMapping("projects/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
 
         projectService.deleteProject(id);
 

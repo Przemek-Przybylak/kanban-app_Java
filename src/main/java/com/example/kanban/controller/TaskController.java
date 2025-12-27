@@ -1,6 +1,7 @@
 package com.example.kanban.controller;
 
 import com.example.kanban.DTO.Mapper;
+import com.example.kanban.DTO.TaskPatchRequestDto;
 import com.example.kanban.DTO.TaskRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Task;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
 
@@ -20,7 +22,7 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("tasks")
+    @GetMapping
     public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
         List<Task> allTasks = taskService.getAllTasks();
 
@@ -31,7 +33,7 @@ public class TaskController {
         return ResponseEntity.ok(tasksResponseDto);
     }
 
-    @GetMapping("tasks/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<TaskResponseDto> getTask(@PathVariable String id) {
         Task task = taskService.getTask(id);
 
@@ -40,7 +42,7 @@ public class TaskController {
         return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PutMapping("tasks/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<TaskResponseDto> editTask(@PathVariable String id, @Validated(OnUpdate.class) @RequestBody TaskRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);
         Task savedTask = taskService.editTask(id, task);
@@ -50,8 +52,8 @@ public class TaskController {
         return ResponseEntity.ok(taskResponseDto);
     }
 
-    @PatchMapping("tasks/{id}")
-    public ResponseEntity<TaskResponseDto> editPartialTask(@PathVariable String id, @RequestBody TaskRequestDto taskDto) {
+    @PatchMapping("/{id}")
+    public ResponseEntity<TaskResponseDto> editPartialTask(@PathVariable String id, @RequestBody TaskPatchRequestDto taskDto) {
         Task task = Mapper.fromDto(taskDto);
         Task savedTask = taskService.editPartialTask(id, task);
 
@@ -60,7 +62,7 @@ public class TaskController {
         return ResponseEntity.ok(taskResponseDto);
     }
 
-    @DeleteMapping("tasks/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable String id) {
         taskService.deleteTask(id);
 
