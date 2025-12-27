@@ -2,10 +2,18 @@ package com.example.kanban.DTO;
 
 import com.example.kanban.model.Project;
 import com.example.kanban.model.Task;
+import com.example.kanban.user.model.User;
+
+import java.util.List;
 
 public class Mapper {
 
     public static ProjectResponseDto toDto(Project entity) {
+
+        List<String> userId = entity.getUsers().stream()
+                .map(User::getUsername)
+                .toList();
+
         return new ProjectResponseDto(
                 entity.getId(),
                 entity.getTitle(),
@@ -15,7 +23,8 @@ public class Mapper {
                 entity.getUpdatedAt(),
                 entity.getTasks().stream()
                         .map(task -> new shortTasksDto(task.getId(), task.getTitle()))
-                        .toList()
+                        .toList(),
+                userId
         );
     }
 
