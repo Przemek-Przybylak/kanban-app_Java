@@ -1,6 +1,9 @@
 package com.example.kanban.service;
 
-import com.example.kanban.model.Project;
+import com.example.kanban.DTO.Mapper;
+import com.example.kanban.DTO.TaskPatchRequestDto;
+import com.example.kanban.DTO.TaskRequestDto;
+import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
@@ -26,48 +29,51 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Task> getAllTasks() {
+    public List<TaskResponseDto> getAllTasks() {
+        List<Task> allTasks = taskRepository.findAll();
 
-        return taskRepository.findAll();
+        return allTasks.stream()
+                .map(Mapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Task getTask(String id) {
+    public TaskResponseDto getTask(String id) {
+        Task task = getTaskIfExisting(id);
 
-        return checkTaskExisting(id);
+        return Mapper.toDto(task);
     }
 
     @Transactional
     @Override
-    public Task editTask(String id, Task task) {
-        Task existingTask = checkTaskExisting(id);
-        checkProjectExist(existingTask.getProject().getId());
+    public TaskResponseDto editTask(String id, TaskRequestDto taskDto) {
+        Task existingTask = getTaskIfExisting(id);
 
-        existingTask.setTitle(task.getTitle());
-        existingTask.setDescription(task.getDescription());
-        existingTask.setStatus(task.getStatus());
-        existingTask.setDueDate(task.getDueDate());
-        existingTask.setApprovedBy(task.getApprovedBy());
+        existingTask.setTitle(taskDto.title());
+        existingTask.setDescription(taskDto.description());
+        existingTask.setStatus(taskDto.status());
+        existingTask.setDueDate(taskDto.dueDate());
+        existingTask.setApprovedBy(taskDto.approvedBy());
 
-        return taskRepository.save(existingTask);
+        Task savedTask = taskRepository.save(existingTask);
+        return Mapper.toDto(savedTask);
     }
 
     @Transactional
     @Override
-    public Task editPartialTask(String id, Task task) {
-        Task existingTask = checkTaskExisting(id);
-        Project project = checkProjectExist(existingTask.getProject().getId());
-        existingTask.setProject(project);
+    public TaskResponseDto editPartialTask(String id, TaskPatchRequestDto taskDto) {
+        Task existingTask = getTaskIfExisting(id);
 
-        updateIfNotNull(task.getDescription(), existingTask::setDescription);
-        updateIfNotNull(task.getStatus(), existingTask::setStatus);
-        updateIfNotNull(task.getApprovedBy(), existingTask::setApprovedBy);
-        updateIfNotNull(task.getDueDate(), existingTask::setDueDate);
-        updateIfNotNull(task.getTitle(), existingTask::setTitle);
-        updateIfNotNull(task.getCreatedAt(), existingTask::setCreatedAt);
+        updateIfNotNull(taskDto.description(), existingTask::setDescription);
+        updateIfNotNull(taskDto.status(), existingTask::setStatus);
+        updateIfNotNull(taskDto.approvedBy(), existingTask::setApprovedBy);
+        updateIfNotNull(taskDto.dueDate(), existingTask::setDueDate);
+        updateIfNotNull(taskDto.title(), existingTask::setTitle);
 
-        return taskRepository.save(existingTask);
+
+        Task savedTask = taskRepository.save(existingTask);
+        return Mapper.toDto(savedTask);
     }
 
     @Transactional
@@ -80,13 +86,7 @@ public class TaskService implements TaskServiceInterface {
         }
     }
 
-    private Project checkProjectExist(String projectId) {
-        return projectRepository
-                .findById(projectId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
-    }
-
-    private Task checkTaskExisting(String id) {
+    private Task getTaskIfExisting(String id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
     }

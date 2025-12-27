@@ -1,6 +1,8 @@
 package com.example.kanban.service;
 
 import com.example.kanban.DTO.TaskPatchRequestDto;
+import com.example.kanban.DTO.TaskRequestDto;
+import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Task;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,16 +10,16 @@ import java.util.List;
 
 public interface TaskServiceInterface {
     @Transactional(readOnly = true)
-    List<Task> getAllTasks();
+    List<TaskResponseDto> getAllTasks();
 
     @Transactional(readOnly = true)
-    Task getTask(String id);
+    TaskResponseDto getTask(String id);
 
     @Transactional
-    Task editTask(String id, Task task);
+    TaskResponseDto editTask(String id, TaskRequestDto taskDto);
 
     @Transactional
-    Task editPartialTask(String id, Task task);
+    TaskResponseDto editPartialTask(String id, TaskPatchRequestDto task);
 
     @Transactional
     void deleteTask(String id);

@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.kanban.DTO.TaskPatchRequestDto;
+import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
@@ -41,9 +43,9 @@ public class TaskServiceTest {
         when(taskRepository.findById("123"))
                 .thenReturn(Optional.of(task));
 
-        Task result = taskService.getTask("123");
+        TaskResponseDto result = taskService.getTask("123");
 
-        assertEquals("123", result.getId());
+        assertEquals("123", result.id());
     }
 
     @Test
@@ -75,12 +77,12 @@ public class TaskServiceTest {
         when(taskRepository.save(any(Task.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Task changedTask = new Task();
-        changedTask.setTitle("example2");
 
-        Task result = taskService.editPartialTask("123", changedTask);
+        TaskPatchRequestDto changedTask = new TaskPatchRequestDto("example2",null,null,null,null);
 
-        assertEquals("example2", result.getTitle());
+        TaskResponseDto result = taskService.editPartialTask("123", changedTask);
+
+        assertEquals("example2", result.title());
     }
 
     @Test
