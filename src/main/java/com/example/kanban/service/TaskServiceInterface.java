@@ -1,5 +1,6 @@
 package com.example.kanban.service;
 
+import com.example.kanban.DTO.TaskPatchRequestDto;
 import com.example.kanban.model.Task;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,7 @@ public interface TaskServiceInterface {
     Task editTask(String id, Task task);
 
     @Transactional
-    Task editPartialTask(String taskId, Task task);
+    Task editPartialTask(String id, Task task);
 
     @Transactional
     void deleteTask(String id);
