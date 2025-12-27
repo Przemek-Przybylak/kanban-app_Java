@@ -61,7 +61,6 @@ public class TaskService implements TaskServiceInterface {
         Project project = checkProjectExist(existingTask.getProject().getId());
         existingTask.setProject(project);
 
-        updateIfNotNull(task.getMembers(), existingTask::setMembers);
         updateIfNotNull(task.getDescription(), existingTask::setDescription);
         updateIfNotNull(task.getStatus(), existingTask::setStatus);
         updateIfNotNull(task.getApprovedBy(), existingTask::setApprovedBy);
