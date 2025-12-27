@@ -1,4 +1,10 @@
 package com.example.kanban.user.dto;
 
-public record LoginRequestDto(String username, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginRequestDto(
+        @NotBlank (message = "Username is required")
+        String username,
+        @NotBlank (message = "Password cannot be empty")
+        String password) {
 }
