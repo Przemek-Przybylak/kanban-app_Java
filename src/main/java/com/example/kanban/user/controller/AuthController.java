@@ -19,13 +19,13 @@ public class AuthController {
         this.userService = userService;
     }
 
-    @PostMapping("/register")
+    @PostMapping("register")
     @ResponseStatus(HttpStatus.CREATED)
     public void register(@RequestBody RegisterRequestDto request) {
         userService.register(request);
     }
 
-    @PostMapping("/username")
+    @PostMapping("login")
     public UserResponseDto login(@RequestBody LoginRequestDto request) {
         return userService.login(request);
     }
