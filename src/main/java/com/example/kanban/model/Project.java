@@ -30,14 +30,6 @@ public class Project implements HasId {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "project_members",
-            joinColumns = @JoinColumn(name = "project_id")
-    )
-    @Column(name = "member")
-    private List<String> members;
-
     private String title;
 
     @OneToMany(mappedBy = "project")

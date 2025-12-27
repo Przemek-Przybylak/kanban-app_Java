@@ -32,14 +32,6 @@ public class Task implements HasId {
     private LocalDateTime createdAt;
     private String status;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "task_members",
-            joinColumns = @JoinColumn(name = "task_id")
-    )
-    @Column(name = "member")
-    private List<String> members;
-
     private String approvedBy;
 
     @ManyToOne

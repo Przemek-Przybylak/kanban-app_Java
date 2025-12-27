@@ -47,7 +47,6 @@ public class TaskService implements TaskServiceInterface {
         existingTask.setTitle(task.getTitle());
         existingTask.setDescription(task.getDescription());
         existingTask.setStatus(task.getStatus());
-        existingTask.setMembers(task.getMembers());
         existingTask.setDueDate(task.getDueDate());
         existingTask.setApprovedBy(task.getApprovedBy());
 
