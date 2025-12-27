@@ -20,14 +20,12 @@ import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 public class ProjectService implements ProjectServiceInterface {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
-    private final UserService userService;
     private final UserRepository userRepository;
 
 
     public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
-        this.userService = userService;
         this.userRepository = userRepository;
     }
 
