@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.example.kanban.service;
 
 import com.example.kanban.DTO.TaskPatchRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
@@ -6,7 +6,6 @@ import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
-import com.example.kanban.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -71,14 +70,11 @@ public class TaskServiceTest {
         when(taskRepository.findById("123"))
                 .thenReturn(Optional.of(existingTask));
 
-        when(projectRepository.findById("p1"))
-                .thenReturn(Optional.of(project));
-
         when(taskRepository.save(any(Task.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
 
-        TaskPatchRequestDto changedTask = new TaskPatchRequestDto("example2",null,null,null,null);
+        TaskPatchRequestDto changedTask = new TaskPatchRequestDto("example2", null, null, null, null);
 
         TaskResponseDto result = taskService.editPartialTask("123", changedTask);
 
@@ -90,7 +86,7 @@ public class TaskServiceTest {
         doNothing().when(taskRepository).deleteById("123");
 
         taskService.deleteTask("123");
-        
+
         verify(taskRepository).deleteById("123");
     }
 
