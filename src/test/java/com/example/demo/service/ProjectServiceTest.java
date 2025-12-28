@@ -1,10 +1,16 @@
 package com.example.demo.service;
 
+import com.example.kanban.DTO.ProjectPatchRequestDto;
+import com.example.kanban.DTO.ProjectResponseDto;
+import com.example.kanban.DTO.TaskRequestDto;
+import com.example.kanban.DTO.TaskResponseDto;
 import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.service.ProjectService;
+import com.example.kanban.user.model.User;
+import com.example.kanban.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,8 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +35,9 @@ public class ProjectServiceTest {
 
     @Mock
     ProjectRepository projectRepository;
+
+    @Mock
+    UserRepository userRepository;
 
     @InjectMocks
     ProjectService projectService;
@@ -57,41 +65,46 @@ public class ProjectServiceTest {
         when(taskRepository.findAll())
                 .thenReturn(List.of(task1, task2, task3));
 
-        List<Task> result = projectService.getTaskByProject("p1");
+        List<TaskResponseDto> result = projectService.getTaskByProject("p1");
 
         assertEquals(2, result.size());
     }
 
     @Test
     void shouldAddTask() {
+        String projectId = "p1";
+        String username = "admin";
+        TaskRequestDto requestDto = new TaskRequestDto("t1", "desc", "todo", null, null);
+
         Project project = new Project();
-        project.setId("p1");
+        project.setId(projectId);
 
-        Task task = new Task();
-        task.setTitle("t1");
+        User user = new User();
+        user.setUsername(username);
 
-        when(projectRepository.findById("p1"))
-                .thenReturn(Optional.of(project));
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
-        when(taskRepository.save(any(Task.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
-        Task result = projectService.addTask("p1", task, "u1");
+        when(taskRepository.save(any(Task.class))).thenAnswer(i -> i.getArgument(0));
 
-        assertEquals(project, result.getProject());
-        assertEquals("t1", result.getTitle());
+        TaskResponseDto result = projectService.addTask(projectId, requestDto, username);
 
-        verify(taskRepository).save(task);
+        assertNotNull(result);
+        assertEquals("t1", result.title());
+        assertEquals(projectId, result.project().id());
+
+        verify(taskRepository).save(any(Task.class));
     }
 
     @Test
-    void chouldThrowExceptionWhenProjectNotFound() {
-        Task task = new Task();
+    void shouldThrowExceptionWhenProjectInTaskNotFound() {
+        TaskRequestDto task = new TaskRequestDto("title", "desc", "todo", null, null);
 
         when(projectRepository.findById("p1"))
                 .thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> projectService.addTask("p1", task,"u1" ));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> projectService.addTask("p1", task, "u1"));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
     }
@@ -104,13 +117,13 @@ public class ProjectServiceTest {
         when(projectRepository.findById("123"))
                 .thenReturn(Optional.of(project));
 
-        Project result = projectService.getProject("123");
+        ProjectResponseDto result = projectService.getProject("123");
 
-        assertEquals("123", result.getId());
+        assertEquals("123", result.id());
     }
 
     @Test
-    void shouldThrowExceptionWhenProjectNotFound() {
+    void shouldThrowExceptionWhenProjectFound() {
         when(projectRepository.findById("123"))
                 .thenReturn(Optional.empty());
 
@@ -135,12 +148,11 @@ public class ProjectServiceTest {
         when(projectRepository.save(any(Project.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Project changedProject = new Project();
-        changedProject.setTitle("example2");
+        ProjectPatchRequestDto changedProject = new ProjectPatchRequestDto("example2", null);
 
-        Project result = projectService.editPartialProject("123", changedProject);
+        ProjectResponseDto result = projectService.editPartialProject("123", changedProject);
 
-        assertEquals("example2", result.getTitle());
+        assertEquals("example2", result.title());
     }
 
     @Test
