@@ -18,7 +18,6 @@ public class Mapper {
                 entity.getId(),
                 entity.getTitle(),
                 entity.getDescription(),
-                entity.getMembers(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getTasks().stream()
@@ -33,7 +32,6 @@ public class Mapper {
 
         project.setTitle(dto.title());
         project.setDescription(dto.description());
-        project.setMembers(dto.members());
 
         return project;
     }
@@ -43,7 +41,6 @@ public class Mapper {
 
         project.setTitle(dto.title());
         project.setDescription(dto.description());
-        project.setMembers(dto.members());
 
         return project;
     }
@@ -54,7 +51,6 @@ public class Mapper {
                 entity.getTitle(),
                 entity.getDescription(),
                 entity.getStatus(),
-                entity.getMembers(),
                 entity.getApprovedBy(),
                 entity.getDueDate(),
                 entity.getCreatedAt(),
@@ -69,7 +65,6 @@ public class Mapper {
         task.setDescription(taskDto.description());
         task.setStatus(taskDto.status());
         task.setDueDate(taskDto.dueDate());
-        task.setMembers(taskDto.members());
         task.setApprovedBy(taskDto.approvedBy());
 
         return task;
