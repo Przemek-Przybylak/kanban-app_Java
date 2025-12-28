@@ -1,153 +1,114 @@
-# Kanban App – Java Spring Boot
+# Kanban Board API 🚀
 
-A simple Kanban board backend built with **Spring Boot**, allowing management of projects and their tasks.  
-This API follows REST principles and is fully containerized with **Docker / docker‑compose**, making it easy to run locally or in production‑like environments.
+A professional, secure, and scalable Kanban board backend built with **Java 21** and **Spring Boot 3**. This project demonstrates modern backend practices, including JWT authentication, Docker containerization, and clean architecture.
 
 ---
 
-## 🚀 Features
-
-✔ Create, read, update, delete **projects**  
-✔ Create, read, update, delete **tasks**  
-✔ Tasks are associated with projects  
-✔ Partial updates with PATCH  
-✔ Input validation  
-✔ Global exception handling  
-✔ API documentation with **Swagger / OpenAPI**  
-✔ Unit tests for service layer (JUnit + Mockito)  
-✔ Dockerized backend and PostgreSQL database
-
+## ✨ Features
+````
+✔ Full CRUD for Projects & Tasks** – Manage your workflow with ease.
+✔ JWT Authentication** – Secure access with JSON Web Tokens.
+✔ User-Task Association** – Automatic User ID extraction from tokens for data ownership.
+✔ Advanced Validation** – Using Validation Groups (`OnCreate`, `OnUpdate`) for data integrity.
+✔ Partial Updates** – Efficient `PATCH` endpoints for modifying specific task/project fields.
+✔ Global Exception Handling** – Consistent API error responses.
+✔ Interactive API Docs** – Fully documented with **Swagger UI (OpenAPI 3.0)**.
+✔ Automated Test User** – Auto-initializes an `admin` user on startup for easy testing.
+````
 ---
 
 ## 📦 Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Language | Java |
-| Framework | Spring Boot |
-| Persistence | Spring Data JPA |
-| Database | PostgreSQL |
-| API Docs | Swagger (OpenAPI) |
-| Testing | JUnit5, Mockito |
-| Containerization | Docker, docker‑compose |
+| **Language** | Java 21 |
+| **Framework** | Spring Boot 3.4.x |
+| **Security** | Spring Security + JWT |
+| **Persistence** | Spring Data JPA |
+| **Database** | PostgreSQL |
+| **Documentation** | Swagger / OpenAPI |
+| **Containerization** | Docker & Docker Compose |
+| **Testing** | JUnit 5 & Mockito |
 
 ---
 
+## 🔑 Getting Started (API Usage)
+
+### Default Test User
+The application automatically creates a test user on startup:
+- **Username:** `admin`
+- **Password:** `admin123`
+
+### Authentication & Access
+- **Public Access:** Unauthenticated users can only access `/auth/**` and `GET /projects`.
+- **Protected Access:** All other endpoints (Tasks, Project modifications) require a valid JWT token.
+- **Login:** `POST /auth/login` to receive your JWT Token.
+- **Register:** `POST /auth/register` to create a new account.
+- **Authorization:** Add the token to your headers: `Authorization: Bearer <your_token>`.
+
+### Key Endpoints
+| Resource | Method      | Endpoint               | Description                                               |
+|----------|-------------|------------------------|-----------------------------------------------------------|
+| **Tasks** | `GET`       | `/tasks`               | List all tasks                                            |
+| | `GET`       | `/tasks/{id}`          | Get specific task by ID (requires ID in URL)              |
+| | `PATCH/PUT` | `/tasks/{id}`          | Edit task (requires ID in URL)                            |
+| | `DELETE`    | `/tasks/{id}`          | Remove task (requires ID in URL)                          |
+| **Projects** | `GET`       | `/projects`            | List all projects (Public)                                |
+| | `GET`       | `/projects/{id}`       | Get specific project by ID (requires ID in URL)           |
+| | `GET`       | `/projects/{id}/tasks` | Get all tasks for a specific project (requires ID in URL) |
+| | `Post`      | `/projects`            | Add a new Project                                         |
+| | `POST`      | `/projects/{id}/tasks` | Add a new task to a specific project (requires ID in URL) |
+| | `PATCH/PUT` | `/projects/{id}`       | Edit project (requires ID in URL)                         |
+| | `DELETE`    | `/projects/{id}`       | Remove project (requires ID in URL)                       |
+
+---
 ## 📁 Project Structure
 ````
-src/
-├── main/
-│ ├── java/
-│ │ └── com/example/kanban/
-│ │ ├── controller # REST endpoints
-│ │ ├── service # Business logic
-│ │ ├── repository # JPA repositories
-│ │ ├── model # Entities
-│ │ └── exception # Global exception handling
-│ └── resources/
-│ └── application.yml
-└── test/
-└── java/ # Unit tests
+src/ 
+├── main/ 
+│ ├── java/com/example/kanban/ 
+│ │ ├── config # Security & Global configurations 
+│ │ ├── controller # REST Endpoints 
+│ │ ├── service # Business Logic & Interfaces 
+│ │ ├── repository # JPA Data Access 
+│ │ ├── model # JPA Entities 
+│ │ ├── DTO # Request/Response objects (Records) 
+│ │ ├── util # Helper classes (Mappers, Update tools) 
+│ │ ├── user # User management & Authentication logic 
+│ │ └── exception # Global Exception Handler 
+│ └── resources/ 
+│ └── application.properties 
+└── test/ # Unit & Logic tests
 ````
 
-
-
 ---
 
-## 📄 API Documentation
+## 🐳 Running with Docker
 
-All REST endpoints are documented with **Swagger (OpenAPI)**.
+This is the recommended way to run the project. It handles both the App and the PostgreSQL database.
 
-After running the application, open a browser and go to:
+1. **Build and start:**
+   ```bash
+   docker compose up --build
+Access the API: http://localhost:8080
 
-http://localhost:8080/swagger-ui/index.html
+API Documentation: http://localhost:8080/swagger-ui/index.html
 
-You can explore and test all HTTP endpoints directly from the UI.
+## 🧪 Testing
+Current tests focus on the service layer using JUnit 5 and Mockito. To run them:
 
----
-
-## 🐳 Running with Docker (recommended)
-
-This project is containerized using Docker:
-
-1. Build and start containers:
-
-```bash
-docker compose up --build
-The app will be available at:
-
-http://localhost:8080
-PostgreSQL will be running on port 5432.
-
-Docker will launch:
-
-backend (Spring Boot API)
-
-postgres (database)
-
-No local installations needed.
-
-🛠 Environment Variables (used in docker-compose)
-Env	Purpose
-SPRING_DATASOURCE_URL	Database connection URL
-SPRING_DATASOURCE_USERNAME	Database user
-SPRING_DATASOURCE_PASSWORD	Database password
-POSTGRES_USER	DB user created by Postgres
-POSTGRES_PASSWORD	DB password
-POSTGRES_DB	Database name
-
-These values are configured inside docker-compose.yml for smooth integration.
-
-🔧 Running Locally
-Alternatively, if you want to run the app locally (without Docker):
-
-Configure PostgreSQL on your machine.
-
-Update application.yml with correct DB credentials.
-
-Use Maven:
-
-bash
-
-./mvnw clean spring‑boot:run
-🧪 Tests
-Unit tests exist for the service layer using Mockito:
-
-bash
 
 ./mvnw test
-Tests validate behavior of:
+## 🗺️ Roadmap (Upcoming Features)
+[NOW] Ownership Verification (ACL): Implementing security checks to ensure users can only access their own projects and tasks.
 
-retrieving data
+[NEXT] React + Next.js Integration: Connecting a modern frontend (migrating from a legacy Express.js setup).
 
-business logic
+[PLAN] Advanced Testing: * Expanding Unit Tests to cover 90%+ of the codebase.
 
-exception flows
+Implementing Integration Tests using Testcontainers for real PostgreSQL environment simulation.
 
-💡 Example Endpoints
-Method	Endpoint	Description
-GET	/projects	List all projects
-POST	/projects	Create a project
-GET	/projects/{id}	Get project by ID
-PATCH	/tasks/{id}	Partial task update
-DELETE	/projects/{id}	Delete project
+[PLAN] Deployment: Automated CI/CD pipeline for cloud deployment.
 
-Explore more in Swagger UI.
-
-```
-📝 Notes
-✔ Suitable for junior backend portfolios
-✔ Containerization simplifies deployment and testing
-✔ Designed to be clean and easy to understand
-
-🗂 Next Steps / TODO
-Potential improvements:
-
-Frontend + backend full stack deployment
-
-User authentication (JWT)
-
-Integration tests
-
-📬 Contact
-If you have questions or feedback, feel free to open an issue or contact me.
+## 📬 Contact
+Project developed as part of a Backend Developer portfolio. Feel free to contact me for feedback or collaboration!edback, feel free to open an issue or contact me.
