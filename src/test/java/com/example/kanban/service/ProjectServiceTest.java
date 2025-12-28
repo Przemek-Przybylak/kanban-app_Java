@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.example.kanban.service;
 
 import com.example.kanban.DTO.ProjectPatchRequestDto;
 import com.example.kanban.DTO.ProjectResponseDto;
@@ -8,7 +8,6 @@ import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
-import com.example.kanban.service.ProjectService;
 import com.example.kanban.user.model.User;
 import com.example.kanban.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -55,15 +54,15 @@ public class ProjectServiceTest {
         task1.setProject(project1);
 
         Task task2 = new Task();
-        task1.setId("t2");
+        task2.setId("t2");
         task2.setProject(project1);
 
         Task task3 = new Task();
         task3.setId("t3");
         task3.setProject(project2);
 
-        when(taskRepository.findAll())
-                .thenReturn(List.of(task1, task2, task3));
+        when(taskRepository.findByProjectId("p1"))
+                .thenReturn(List.of(task1, task2));
 
         List<TaskResponseDto> result = projectService.getTaskByProject("p1");
 
