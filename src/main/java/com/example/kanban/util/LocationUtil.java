@@ -6,10 +6,10 @@ import java.net.URI;
 
 public class LocationUtil {
 
-    public static<T extends HasId> URI buildLocation(T entity) {
+    public static<T> URI buildLocation(String id) {
         return ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(entity.getId())
+                .buildAndExpand(id)
                 .toUri();
     }
 }
