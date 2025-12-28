@@ -1,12 +1,12 @@
 package com.example.kanban.service;
 
+import com.example.kanban.DTO.*;
 import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.user.model.User;
 import com.example.kanban.user.repository.UserRepository;
-import com.example.kanban.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class ProjectService implements ProjectServiceInterface {
     private final UserRepository userRepository;
 
 
-    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService, UserRepository userRepository) {
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
@@ -31,80 +31,95 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public List<Task> getTaskByProject(String id) {
-        return taskRepository.findAll().stream()
-                .filter(task -> task.getProject().getId() != null && task.getProject().getId().equals(id))
+    public List<TaskResponseDto> getTaskByProject(String id) {
+        return taskRepository.findByProjectId(id).stream()
+                .map(Mapper::toDto)
                 .toList();
     }
 
     @Transactional
     @Override
-    public Task addTask(String projectId, Task task, String username) {
-        Project project = checkProjectExist(projectId);
+    public TaskResponseDto addTask(String projectId, TaskRequestDto taskDto, String username) {
+        Project project = getProjectIfExisting(projectId);
         User owner = getOwner(username);
+
+        Task task = Mapper.fromDto(taskDto);
 
         task.setUser(owner);
         task.setProject(project);
 
-        return taskRepository.save(task);
+        taskRepository.save(task);
+
+        return Mapper.toDto(task);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<Project> getAllProjects() {
+    public List<ProjectResponseDto> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
 
-        return projectRepository.findAll();
+        return projects.stream()
+                .map(Mapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Project getProject(String id) {
+    public ProjectResponseDto getProject(String id) {
+        Project project = getProjectIfExisting(id);
 
-        return checkProjectExist(id);
+        return Mapper.toDto(project);
     }
 
     @Transactional
     @Override
-    public Project addProject(Project project, String username) {
+    public ProjectResponseDto addProject(ProjectRequestDto projectDto, String username) {
         User owner = getOwner(username);
+        Project project = Mapper.fromDto(projectDto);
 
         project.getUsers().add(owner);
         owner.getProjects().add(project);
-        return projectRepository.save(project);
+
+        Project savedProject = projectRepository.save(project);
+
+        return Mapper.toDto(savedProject);
     }
 
     @Transactional
     @Override
-    public Project editProject(String id, Project project) {
-        Project existingProject = checkProjectExist(id);
+    public ProjectResponseDto editProject(String id, ProjectRequestDto projectDto) {
+        Project existingProject = getProjectIfExisting(id);
 
-        existingProject.setTitle(project.getTitle());
-        existingProject.setDescription(project.getDescription());
+        existingProject.setTitle(projectDto.title());
+        existingProject.setDescription(projectDto.description());
 
-        return projectRepository.save(existingProject);
+        Project savedProject = projectRepository.save(existingProject);
+
+        return Mapper.toDto(savedProject);
     }
 
     @Transactional
     @Override
-    public Project editPartialProject(String id, Project project) {
-        Project existingProject = checkProjectExist(id);
+    public ProjectResponseDto editPartialProject(String id, ProjectPatchRequestDto project) {
+        Project existingProject = getProjectIfExisting(id);
 
-        updateIfNotNull(project.getDescription(), existingProject::setDescription);
-        updateIfNotNull(project.getTitle(), existingProject::setTitle);
-        updateIfNotNull(project.getTasks(), existingProject::setTasks);
+        updateIfNotNull(project.description(), existingProject::setDescription);
+        updateIfNotNull(project.title(), existingProject::setTitle);
 
-        return projectRepository.save(existingProject);
+        Project savedProject = projectRepository.save(existingProject);
+
+        return Mapper.toDto(savedProject);
     }
 
     @Transactional
     @Override
     public void deleteProject(String id) {
-        Project project = checkProjectExist(id);
+        Project project = getProjectIfExisting(id);
 
         projectRepository.delete(project);
     }
 
-    private Project checkProjectExist(String id) {
+    private Project getProjectIfExisting(String id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
     }
