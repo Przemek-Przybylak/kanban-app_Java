@@ -96,8 +96,10 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public ProjectResponseDto editProject(String id, ProjectRequestDto projectDto) {
+    public ProjectResponseDto editProject(String id, ProjectRequestDto projectDto, String username) {
         Project existingProject = getProjectIfExisting(id);
+
+        checkProjectMembership(username, existingProject);
 
         existingProject.setTitle(projectDto.title());
         existingProject.setDescription(projectDto.description());
@@ -109,8 +111,10 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public ProjectResponseDto editPartialProject(String id, ProjectPatchRequestDto project) {
+    public ProjectResponseDto editPartialProject(String id, ProjectPatchRequestDto project, String username) {
         Project existingProject = getProjectIfExisting(id);
+
+        checkProjectMembership(username, existingProject);
 
         updateIfNotNull(project.description(), existingProject::setDescription);
         updateIfNotNull(project.title(), existingProject::setTitle);
@@ -122,8 +126,10 @@ public class ProjectService implements ProjectServiceInterface {
 
     @Transactional
     @Override
-    public void deleteProject(String id) {
+    public void deleteProject(String id, String username) {
         Project project = getProjectIfExisting(id);
+
+        checkProjectMembership(username, project);
 
         projectRepository.delete(project);
     }

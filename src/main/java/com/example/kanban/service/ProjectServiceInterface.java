@@ -25,11 +25,11 @@ public interface ProjectServiceInterface {
     ProjectResponseDto addProject(ProjectRequestDto project, String username);
 
     @Transactional
-    ProjectResponseDto editProject(String id, ProjectRequestDto project);
+    ProjectResponseDto editProject(String id, ProjectRequestDto projectDto, String username);
 
     @Transactional
-    ProjectResponseDto editPartialProject(String id, ProjectPatchRequestDto project);
+    ProjectResponseDto editPartialProject(String id, ProjectPatchRequestDto project, String username);
 
     @Transactional
-    void deleteProject(String id);
+    void deleteProject(String id, String username);
 }

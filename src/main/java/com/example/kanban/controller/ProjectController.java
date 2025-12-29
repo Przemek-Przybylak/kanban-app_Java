@@ -30,9 +30,7 @@ public class ProjectController {
 
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<TaskResponseDto> addTask(@PathVariable String projectId, @Validated(OnCreate.class) @RequestBody TaskRequestDto taskDto, Authentication authentication) {
-        String username = authentication.getName();
-
-        TaskResponseDto taskResponseDto = projectService.addTask(projectId, taskDto, username);
+        TaskResponseDto taskResponseDto = projectService.addTask(projectId, taskDto, authentication.getName());
 
         URI location = LocationUtil.buildLocation(taskResponseDto.id());
 
@@ -53,9 +51,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ProjectResponseDto> addProject(@Validated(OnCreate.class) @RequestBody ProjectRequestDto projectDto, Authentication authentication) {
-        String username = authentication.getName();
-
-        ProjectResponseDto savedProject = projectService.addProject(projectDto, username);
+        ProjectResponseDto savedProject = projectService.addProject(projectDto, authentication.getName());
 
         URI location = LocationUtil.buildLocation(savedProject.id());
 
@@ -63,21 +59,21 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @Validated(OnUpdate.class) @RequestBody ProjectRequestDto projectDto) {
+    public ResponseEntity<ProjectResponseDto> editProject(@PathVariable String id, @Validated(OnUpdate.class) @RequestBody ProjectRequestDto projectDto, Authentication authentication) {
 
-        return ResponseEntity.ok(projectService.editProject(id, projectDto));
+        return ResponseEntity.ok(projectService.editProject(id, projectDto, authentication.getName()));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody ProjectPatchRequestDto projectDto) {
+    public ResponseEntity<ProjectResponseDto> editPartialProject(@PathVariable String id, @RequestBody ProjectPatchRequestDto projectDto, Authentication authentication) {
 
-        return ResponseEntity.ok(projectService.editPartialProject(id, projectDto));
+        return ResponseEntity.ok(projectService.editPartialProject(id, projectDto, authentication.getName()));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable String id, Authentication authentication) {
 
-        projectService.deleteProject(id);
+        projectService.deleteProject(id, authentication.getName());
 
         return ResponseEntity.noContent().build();
     }
