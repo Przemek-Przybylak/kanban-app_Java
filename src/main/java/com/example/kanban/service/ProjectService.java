@@ -47,6 +47,7 @@ public class ProjectService implements ProjectServiceInterface {
     public TaskResponseDto addTask(String projectId, TaskRequestDto taskDto, String username) {
         Project project = getProjectIfExisting(projectId);
         User owner = getOwner(username);
+
         checkProjectMembership(username, project);
 
         Task task = Mapper.fromDto(taskDto);
@@ -85,6 +86,8 @@ public class ProjectService implements ProjectServiceInterface {
 
         project.getUsers().add(owner);
         owner.getProjects().add(project);
+
+        checkProjectMembership(username, project);
 
         Project savedProject = projectRepository.save(project);
 
