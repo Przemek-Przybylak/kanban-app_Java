@@ -4,11 +4,11 @@ import com.example.kanban.DTO.Mapper;
 import com.example.kanban.DTO.TaskPatchRequestDto;
 import com.example.kanban.DTO.TaskRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
-import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
-import org.springframework.dao.EmptyResultDataAccessException;
+import com.example.kanban.user.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,11 +20,11 @@ import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 @Service
 public class TaskService implements TaskServiceInterface {
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
+    private final UserService userService;
 
-    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
+    public TaskService(TaskRepository taskRepository, UserService userService) {
         this.taskRepository = taskRepository;
-        this.projectRepository = projectRepository;
+        this.userService = userService;
     }
 
     @Transactional(readOnly = true)
@@ -47,8 +47,10 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public TaskResponseDto editTask(String id, TaskRequestDto taskDto) {
+    public TaskResponseDto editTask(String id, TaskRequestDto taskDto, String username) {
         Task existingTask = getTaskIfExisting(id);
+
+        checkTaskMembership(username, existingTask);
 
         existingTask.setTitle(taskDto.title());
         existingTask.setDescription(taskDto.description());
@@ -62,8 +64,10 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public TaskResponseDto editPartialTask(String id, TaskPatchRequestDto taskDto) {
+    public TaskResponseDto editPartialTask(String id, TaskPatchRequestDto taskDto, String username) {
         Task existingTask = getTaskIfExisting(id);
+
+        checkTaskMembership(username, existingTask);
 
         updateIfNotNull(taskDto.description(), existingTask::setDescription);
         updateIfNotNull(taskDto.status(), existingTask::setStatus);
@@ -78,16 +82,27 @@ public class TaskService implements TaskServiceInterface {
 
     @Transactional
     @Override
-    public void deleteTask(String id) {
-        try {
-            taskRepository.deleteById(id);
-        } catch (EmptyResultDataAccessException e) {
-            throw (new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-        }
+    public void deleteTask(String id, String username) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        checkTaskMembership(username, task);
+
+        taskRepository.delete(task);
     }
 
     private Task getTaskIfExisting(String id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+    }
+
+    private void checkTaskMembership(String username, Task task) {
+        String ownerId = userService.getUserIdFromUsername(username);
+
+        boolean isMember = task.getUser().getUsername().equals(ownerId);
+
+        if (!isMember) {
+            throw new AccessDeniedException("You don't have access for this project");
+        }
     }
 }
