@@ -7,12 +7,15 @@ import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.user.model.User;
 import com.example.kanban.user.repository.UserRepository;
+import com.example.kanban.user.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.example.kanban.util.UpdateIfNotNull.updateIfNotNull;
 
@@ -21,12 +24,14 @@ public class ProjectService implements ProjectServiceInterface {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
 
-    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository) {
+    public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, UserService userService) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Transactional
@@ -42,6 +47,7 @@ public class ProjectService implements ProjectServiceInterface {
     public TaskResponseDto addTask(String projectId, TaskRequestDto taskDto, String username) {
         Project project = getProjectIfExisting(projectId);
         User owner = getOwner(username);
+        checkProjectMembership(username, project);
 
         Task task = Mapper.fromDto(taskDto);
 
@@ -127,6 +133,17 @@ public class ProjectService implements ProjectServiceInterface {
     private User getOwner(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+    private void checkProjectMembership(String username, Project project) {
+        String ownerId = userService.getUserIdFromUsername(username);
+
+        boolean isMember = project.getUsers().stream()
+                .anyMatch(user -> Objects.equals(user.getId(), ownerId));
+
+        if (!isMember) {
+            throw new AccessDeniedException("You don't have access for this project");
+        }
     }
 }
 
