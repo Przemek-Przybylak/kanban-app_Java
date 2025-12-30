@@ -23,8 +23,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProjectServiceTest {
@@ -136,10 +135,15 @@ public class ProjectServiceTest {
         Task task = new Task();
         task.setId("t1");
 
+        User user = new User();
+        user.setUsername("u1");
+
+
         Project existingProject = new Project();
         existingProject.setId("123");
         existingProject.setTitle("example");
         existingProject.setTasks(List.of(task));
+        existingProject.setUsers(List.of(user));
 
         when(projectRepository.findById("123"))
                 .thenReturn(Optional.of(existingProject));
@@ -149,7 +153,7 @@ public class ProjectServiceTest {
 
         ProjectPatchRequestDto changedProject = new ProjectPatchRequestDto("example2", null);
 
-        ProjectResponseDto result = projectService.editPartialProject("123", changedProject);
+        ProjectResponseDto result = projectService.editPartialProject("123", changedProject, user.getUsername());
 
         assertEquals("example2", result.title());
     }
@@ -159,20 +163,34 @@ public class ProjectServiceTest {
         Project project = new Project();
         project.setId("123");
 
+        User user = new User();
+        user.setUsername("u1");
+
+        project.setUsers(List.of(user));
+
         when(projectRepository.findById("123"))
                 .thenReturn(Optional.of(project));
 
-        projectService.deleteProject("123");
+        projectService.deleteProject("123", user.getUsername());
 
         verify(projectRepository).delete(project);
     }
 
     @Test
     void shouldThrowExceptionWhenProjectToDeleteNotExist() {
+        String projectId = "123";
+        String username = "u1";
+
+        when(taskRepository.findById(projectId)).thenReturn(Optional.empty());
+
         ResponseStatusException exception =
                 assertThrows(ResponseStatusException.class,
-                        () -> projectService.deleteProject("123"));
+                        () -> projectService.deleteProject(projectId, username));
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
+        assertEquals("Project not found", exception.getReason());
+
+        verify(projectRepository, never()).delete(any());
+        verify(projectRepository, never()).deleteById(anyString());
     }
 }
