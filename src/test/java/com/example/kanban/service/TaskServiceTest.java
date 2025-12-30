@@ -2,16 +2,16 @@ package com.example.kanban.service;
 
 import com.example.kanban.DTO.TaskPatchRequestDto;
 import com.example.kanban.DTO.TaskResponseDto;
-import com.example.kanban.model.Project;
 import com.example.kanban.model.ProjectRepository;
 import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
+import com.example.kanban.user.model.User;
+import com.example.kanban.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +27,9 @@ public class TaskServiceTest {
 
     @Mock
     TaskRepository taskRepository;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     ProjectRepository projectRepository;
@@ -59,48 +62,72 @@ public class TaskServiceTest {
 
     @Test
     void shouldEditTaskPartially() {
-        Project project = new Project();
-        project.setId("p1");
+        // GIVEN
+        String username = "u1";
+        String taskId = "123";
 
+        // 1. Setup użytkownika
+        User user = new User();
+        user.setUsername(username);
+
+        // 2. Setup zadania - MUSI mieć przypisanego usera bezpośrednio!
         Task existingTask = new Task();
-        existingTask.setId("123");
-        existingTask.setTitle("example");
-        existingTask.setProject(project);
+        existingTask.setId(taskId);
+        existingTask.setTitle("old title");
+        existingTask.setUser(user); // To chroni przed NPE w linii 101
 
-        when(taskRepository.findById("123"))
-                .thenReturn(Optional.of(existingTask));
+        // 3. Mockowanie repozytorium
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+        when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        when(taskRepository.save(any(Task.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        // DTO z nowym tytułem
+        TaskPatchRequestDto patchRequest = new TaskPatchRequestDto("new title", null, null, null, null);
 
+        // WHEN
+        TaskResponseDto result = taskService.editPartialTask(taskId, patchRequest, username);
 
-        TaskPatchRequestDto changedTask = new TaskPatchRequestDto("example2", null, null, null, null);
+        // THEN
+        // Sprawdzamy, czy tytuł się zmienił (używając prawdziwego mappera, nie mocka)
+        assertEquals("new title", result.title());
+        verify(taskRepository).save(any(Task.class));
 
-        TaskResponseDto result = taskService.editPartialTask("123", changedTask);
-
-        assertEquals("example2", result.title());
+        // Ważne: userService nie jest już wołany, więc nie weryfikujemy go
     }
 
     @Test
     void shouldDeleteTask() {
-        doNothing().when(taskRepository).deleteById("123");
+        String username = "u1";
+        String taskId = "task-123";
 
-        taskService.deleteTask("123");
+        User user = new User();
+        user.setUsername(username);
 
-        verify(taskRepository).deleteById("123");
+        Task existingTask = new Task();
+        existingTask.setId(taskId);
+        existingTask.setUser(user);
+
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
+
+        taskService.deleteTask(taskId, username);
+
+        verify(taskRepository).delete(existingTask);
     }
 
     @Test
     void shouldThrowExceptionWhenTaskToDeleteNotExist() {
-        doThrow(EmptyResultDataAccessException.class)
-                .when(taskRepository)
-                .deleteById("123");
+        String taskId = "123";
+        String username = "u1";
 
-        ResponseStatusException exception =
-                assertThrows(ResponseStatusException.class,
-                        () -> taskService.deleteTask("123"));
+        when(taskRepository.findById(taskId)).thenReturn(Optional.empty());
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () ->
+                taskService.deleteTask(taskId, username)
+        );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-    }
+        assertEquals("Task not found", exception.getReason());
 
+        verify(taskRepository, never()).delete(any());
+        verify(taskRepository, never()).deleteById(anyString());
+    }
 }
