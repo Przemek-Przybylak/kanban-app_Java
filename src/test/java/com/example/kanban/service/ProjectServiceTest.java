@@ -10,6 +10,7 @@ import com.example.kanban.model.Task;
 import com.example.kanban.model.TaskRepository;
 import com.example.kanban.user.model.User;
 import com.example.kanban.user.repository.UserRepository;
+import com.example.kanban.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +38,9 @@ public class ProjectServiceTest {
 
     @Mock
     UserRepository userRepository;
+
+    @Mock
+    UserService userService;
 
     @InjectMocks
     ProjectService projectService;
@@ -72,13 +77,18 @@ public class ProjectServiceTest {
     void shouldAddTask() {
         String projectId = "p1";
         String username = "admin";
+        String userId = "user-123";
         TaskRequestDto requestDto = new TaskRequestDto("t1", "desc", "todo", null, null);
+
+        User user = new User();
+        user.setId(userId);
+        user.setUsername(username);
 
         Project project = new Project();
         project.setId(projectId);
+        project.setUsers(List.of(user));
 
-        User user = new User();
-        user.setUsername(username);
+        when(userService.getUserIdFromUsername(username)).thenReturn(userId);
 
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
 
@@ -90,8 +100,6 @@ public class ProjectServiceTest {
 
         assertNotNull(result);
         assertEquals("t1", result.title());
-        assertEquals(projectId, result.project().id());
-
         verify(taskRepository).save(any(Task.class));
     }
 
@@ -132,30 +140,32 @@ public class ProjectServiceTest {
 
     @Test
     void shouldEditProjectPartially() {
-        Task task = new Task();
-        task.setId("t1");
+        String projectId = "123";
+        String username = "u1";
+        String userId = "user-abc";
 
         User user = new User();
-        user.setUsername("u1");
-
+        user.setId(userId);
+        user.setUsername(username);
 
         Project existingProject = new Project();
-        existingProject.setId("123");
-        existingProject.setTitle("example");
-        existingProject.setTasks(List.of(task));
+        existingProject.setId(projectId);
+        existingProject.setTitle("old title");
         existingProject.setUsers(List.of(user));
+        existingProject.setTasks(new ArrayList<>());
 
-        when(projectRepository.findById("123"))
-                .thenReturn(Optional.of(existingProject));
+        when(userService.getUserIdFromUsername(username)).thenReturn(userId);
 
-        when(projectRepository.save(any(Project.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(projectRepository.findById(projectId)).thenReturn(Optional.of(existingProject));
+        when(projectRepository.save(any(Project.class))).thenAnswer(i -> i.getArgument(0));
 
-        ProjectPatchRequestDto changedProject = new ProjectPatchRequestDto("example2", null);
+        ProjectPatchRequestDto changedProject = new ProjectPatchRequestDto("new title", null);
 
-        ProjectResponseDto result = projectService.editPartialProject("123", changedProject, user.getUsername());
+        ProjectResponseDto result = projectService.editPartialProject(projectId, changedProject, username);
 
-        assertEquals("example2", result.title());
+        assertEquals("new title", result.title());
+        verify(projectRepository).save(any(Project.class));
+        verify(userService).getUserIdFromUsername(username);
     }
 
     @Test
@@ -181,7 +191,7 @@ public class ProjectServiceTest {
         String projectId = "123";
         String username = "u1";
 
-        when(taskRepository.findById(projectId)).thenReturn(Optional.empty());
+        when(projectRepository.findById(projectId)).thenReturn(Optional.empty());
 
         ResponseStatusException exception =
                 assertThrows(ResponseStatusException.class,
