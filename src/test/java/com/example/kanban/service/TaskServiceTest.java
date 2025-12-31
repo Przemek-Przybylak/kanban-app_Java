@@ -28,12 +28,6 @@ public class TaskServiceTest {
     @Mock
     TaskRepository taskRepository;
 
-    @Mock
-    private UserService userService;
-
-    @Mock
-    ProjectRepository projectRepository;
-
     @InjectMocks
     TaskService taskService;
 
@@ -62,36 +56,27 @@ public class TaskServiceTest {
 
     @Test
     void shouldEditTaskPartially() {
-        // GIVEN
         String username = "u1";
         String taskId = "123";
 
-        // 1. Setup użytkownika
         User user = new User();
         user.setUsername(username);
 
-        // 2. Setup zadania - MUSI mieć przypisanego usera bezpośrednio!
         Task existingTask = new Task();
         existingTask.setId(taskId);
         existingTask.setTitle("old title");
-        existingTask.setUser(user); // To chroni przed NPE w linii 101
+        existingTask.setUser(user);
 
-        // 3. Mockowanie repozytorium
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
         when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        // DTO z nowym tytułem
         TaskPatchRequestDto patchRequest = new TaskPatchRequestDto("new title", null, null, null, null);
 
-        // WHEN
         TaskResponseDto result = taskService.editPartialTask(taskId, patchRequest, username);
 
-        // THEN
-        // Sprawdzamy, czy tytuł się zmienił (używając prawdziwego mappera, nie mocka)
         assertEquals("new title", result.title());
         verify(taskRepository).save(any(Task.class));
 
-        // Ważne: userService nie jest już wołany, więc nie weryfikujemy go
     }
 
     @Test
