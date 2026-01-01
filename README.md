@@ -14,6 +14,7 @@ A professional, secure, and scalable Kanban board backend built with **Java 21**
 ✔ Global Exception Handling** – Consistent API error responses.
 ✔ Interactive API Docs** – Fully documented with **Swagger UI (OpenAPI 3.0)**.
 ✔ Automated Test User** – Auto-initializes an `admin` user on startup for easy testing.
+✔ Ownership Verification (ACL): Implementing security checks to ensure users can only access their own projects and tasks.
 ````
 ---
 
@@ -100,11 +101,9 @@ Current tests focus on the service layer using JUnit 5 and Mockito. To run them:
 
 ./mvnw test
 ## 🗺️ Roadmap (Upcoming Features)
-[NOW] Ownership Verification (ACL): Implementing security checks to ensure users can only access their own projects and tasks.
+[NOW] React + Next.js Integration: Connecting a modern frontend (migrating from a legacy Express.js setup).
 
-[NEXT] React + Next.js Integration: Connecting a modern frontend (migrating from a legacy Express.js setup).
-
-[PLAN] Advanced Testing: * Expanding Unit Tests to cover 90%+ of the codebase.
+[NEXT] Advanced Testing: * Expanding Unit Tests to cover 90%+ of the codebase.
 
 Implementing Integration Tests using Testcontainers for real PostgreSQL environment simulation.
 
